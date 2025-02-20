@@ -20,7 +20,7 @@ tuple<uint64_t, uint64_t> cast_to_tuple(std::string line) {
     return result;
 }
 
-vector<tuple<uint64_t, uint64_t>> read_file(){
+vector<tuple<uint64_t, uint64_t>> read_file() {
     ifstream file(fileName);
     string str;
     vector<tuple<uint64_t, uint64_t>> tuples;
@@ -33,7 +33,7 @@ vector<tuple<uint64_t, uint64_t>> read_file(){
     return tuples;
 }
 
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
 
     // Read generated file with random tuples of usigned 64 bit integers
     auto data = read_file();    
