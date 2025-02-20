@@ -51,15 +51,18 @@ void print_hash_values(vector<tuple<uint64_t, uint64_t>> data) {
         cout << hash_function(get<0>(data[i])) << " " << get<1>(data[i]) << endl;
     }
 }
-void work(int thread_index) {
+void work(int thread_index, vector<tuple<uint64_t, uint64_t>> data, int start_index, int bucket_size){
     std::this_thread::sleep_for(chrono::milliseconds(thread_index));
-    cout << "Thread #" << thread_index << ": on CPU " << sched_getcpu() << endl;
+    cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
 }
 
 void thread_work(vector<tuple<uint64_t, uint64_t>> data) {
+    
+    auto bucket_size = data.size() / NUM_THREADS;
+
     std::vector<std::thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
-      threads[i] = thread(work, i);
+      threads[i] = thread(work, i, data, i * bucket_size, bucket_size);
     }
   
     for (auto& t : threads) {
