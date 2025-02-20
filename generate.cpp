@@ -48,11 +48,6 @@ int main(int argc, char *argv[]){
     // Generate file with random tuples of usigned 64 bit integers
     genereate_file(generate_num);
     
-
-
-
-    auto result = generate_random_integers();
-    std::cout << "This is a tuple " << get<1>(result) << std::endl;
     return 0;
 }
 
