@@ -2,57 +2,45 @@
 #include <random>
 #include <tuple>
 #include <fstream>
+#include <vector>
 
 using namespace std;
 
+const string fileName = "random_integers.txt";
 
-// Method for generating a tuple of integers of 64 bits (only positive)
-tuple<uint64_t, uint64_t> generate_random_integers() {
-    random_device rd;
-    mt19937 gen(rd());
-    uniform_int_distribution<uint64_t> dis(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
-    tuple<uint64_t, uint64_t> result(dis(gen), dis(gen));
+// Cast one string line to a integer  tupleto  
+tuple<uint64_t, uint64_t> cast_to_tuple(std::string line) {
+    size_t pos = line.find(' ');
+    
+    uint64_t first = stoull(line.substr(0, pos));
+    uint64_t second = stoull(line.substr(pos + 1));
+
+    tuple<uint64_t, uint64_t> result(first, second);
+    
     return result;
 }
 
-void genereate_file(int num_to_generate){
-    ofstream file;
-    file.open("random_integers.txt", ios::trunc);
-    for(int i = 0; i < num_to_generate; i++){
-        auto result = generate_random_integers();
-        file << get<0>(result) << " " << get<1>(result) << endl;
+vector<tuple<uint64_t, uint64_t>> read_file(){
+    ifstream file(fileName);
+    string str;
+    vector<tuple<uint64_t, uint64_t>> tuples;
+    while (getline(file, str))
+    {
+        // Process str
+        auto tuple = cast_to_tuple(str);
+        tuples.push_back(tuple);
     }
-    file.close();
+    return tuples;
 }
 
 int main(int argc, char *argv[]){
 
-    if(argc <= 1){
-        cout << "Usage: " << argv[0] << " <number of tuples>" << endl;
-        return 1;
-    }
+    // Read generated file with random tuples of usigned 64 bit integers
+    auto data = read_file();    
+    // for(auto tuple : data){
+    //     cout << get<0>(tuple) << " " << get<1>(tuple) << endl;
+    // }
 
-    
-    // Generate this many number of uniformly random tuples
-    int generate_num = stoi(argv[1]);
-    
-    if(generate_num <= 0){
-        cout << "Please enter a valid number" << endl;
-        return 1;
-    }
-    if (generate_num > 2^24+1){
-        cout << "Please enter a number less than 2^24" << endl;
-        return 1;
-    }
-
-    // Generate file with random tuples of usigned 64 bit integers
-    genereate_file(generate_num);
-    
-
-
-
-    auto result = generate_random_integers();
-    std::cout << "This is a tuple " << get<1>(result) << std::endl;
     return 0;
 }
 

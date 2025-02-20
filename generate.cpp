@@ -15,7 +15,7 @@ tuple<uint64_t, uint64_t> generate_random_integers() {
     return result;
 }
 
-void genereate_file(int num_to_generate){
+void generate_file(int num_to_generate){
     ofstream file;
     file.open("random_integers.txt", ios::trunc);
     for(int i = 0; i < num_to_generate; i++){
@@ -32,7 +32,6 @@ int main(int argc, char *argv[]){
         return 1;
     }
 
-    
     // Generate this many number of uniformly random tuples
     int generate_num = stoi(argv[1]);
     
@@ -40,13 +39,13 @@ int main(int argc, char *argv[]){
         cout << "Please enter a valid number" << endl;
         return 1;
     }
-    if (generate_num > 2^24+1){
+    if (generate_num > pow(2.0, 24.0)){
         cout << "Please enter a number less than 2^24" << endl;
         return 1;
     }
 
     // Generate file with random tuples of usigned 64 bit integers
-    genereate_file(generate_num);
+    generate_file(generate_num);
     
     return 0;
 }
