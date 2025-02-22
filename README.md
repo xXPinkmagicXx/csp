@@ -14,9 +14,19 @@ g++ -o generate.o generate.cpp
 
 ## Results
 
-The results will be outputted in a txt file
+results are in `results.csv` file 
+The columns are
+- hash_bits
+- num_threads
+- mil_tup_per_sec
 
 ## How to run the code
+
+### Run experiment
+Run the bash script and regenerate the `results.csv` file
+```bash
+./run.sh
+```
 
 ### Run main
 Arguments
