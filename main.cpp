@@ -15,6 +15,7 @@ const string fileName = "random_integers.txt";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
 int DATA_SIZE = 0;
+int verbose = 0;
 std::mutex *mutexes;
 vector<vector<tuple<uint64_t, uint64_t>>> concurrent_buffers; // one buffer per partition 
 
@@ -53,12 +54,14 @@ int get_num_partitions() {
 }
 
 void init_mutexes() {
-    cout << "Initializing mutexes" << endl;
+    if(verbose)
+        cout << "Initializing mutexes" << endl;
     mutexes = new std::mutex[get_num_partitions()];
 }
 
 void init_buffers() {
-    cout << "Initializing buffers..." << endl;
+    if(verbose)
+        cout << "Initializing buffers..." << endl;
     concurrent_buffers = vector<vector<tuple<uint64_t, uint64_t>>>(get_num_partitions());
 }
 
@@ -83,7 +86,8 @@ void print_hash_values(vector<tuple<uint64_t, uint64_t>> data) {
     }
 }
 void work(int thread_index, vector<tuple<uint64_t, uint64_t>> data, int start_index, int bucket_size){
-    cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
+    if(verbose)
+        cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
     // Identify the partition by hash function
     for(int i = start_index; i < start_index + bucket_size; i++){
         // Hash key to get the partition key
@@ -93,7 +97,8 @@ void work(int thread_index, vector<tuple<uint64_t, uint64_t>> data, int start_in
         // Add tuple to buffer (using locks)
         add_tuple_to_buffer(partition_key, data[i]);
     }
-    cout << "Thread #" << thread_index << " completed... "<< endl;
+    if(verbose)
+        cout << "Thread #" << thread_index << " completed... "<< endl;
 }
 
 void thread_work(vector<tuple<uint64_t, uint64_t>> data) {
@@ -103,7 +108,8 @@ void thread_work(vector<tuple<uint64_t, uint64_t>> data) {
     init_buffers();
     // Create buffers for each partition
     auto bucket_size = data.size() / NUM_THREADS;
-    cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+    if(verbose)
+        cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
     
     // Initialize threads
     std::vector<std::thread> threads(NUM_THREADS);
@@ -155,25 +161,39 @@ void print_buffers_partition_statistics() {
     cout << "Expected Partion Size: " << mean << " ±" << std_dev << endl;
 }
 
+
+void write_results_to_file(ulong million_tuples_per_second) {
+    ofstream file;
+    file.open("results.txt", ios::app);
+    // Write ulong to file
+    file << million_tuples_per_second;
+    file.close();
+}
+
 int main(int argc, char *argv[]) {
-    int hash_bit_arg;
-    int thread_count_arg;
+    
     if(argc <= 2 ) {
         cout << "Using default values hash_bits=" << HASH_BITS << " thread_count=" << NUM_THREADS << endl;
     } else {
-        hash_bit_arg = stoi(argv[1]);
-        thread_count_arg = stoi(argv[2]);
-        
+        // Get and validate the hash bits argument 
+        int hash_bit_arg = stoi(argv[1]);
         if(hash_bit_arg <= 0 || hash_bit_arg > 18) {
-            cout << "Please enter a positive number between 1-18" << endl;
-            return 1;
-        }
-    
-        if(thread_count_arg <= 0 || thread_count_arg > 32) {
-            cout << "Please enter a positive number between 1-32" << endl;
+            cout << "First arg: enter a positive number between 1-18" << endl;
             return 1;
         }
         
+        // Get and validate the # threads argument
+        int thread_count_arg = stoi(argv[2]);
+        if(thread_count_arg <= 0 || thread_count_arg > 32) {
+            cout << "Second arg: enter positive number between 1-32" << endl;
+            return 1;
+        }
+        // Get and validate the verbose argument
+        int verbose_arg = 0;
+        if (argc == 4 && verbose_arg >= 0 && verbose_arg < 3){
+            verbose_arg = stoi(argv[3]); 
+        }
+        verbose = verbose_arg;
         HASH_BITS = hash_bit_arg;
         NUM_THREADS = thread_count_arg;
     }
@@ -183,8 +203,9 @@ int main(int argc, char *argv[]) {
     // Note that the data is/should be read only
     auto data = read_file();    
 
-    cout << "Data size: " << data.size() << endl;
     auto data_size = data.size();
+    if(verbose)
+        cout << "Data size: " << data_size << endl;
     if(data_size == 0) {
         cout << "No data to process" << endl;
         cout << "Closing..." << endl;
@@ -217,12 +238,16 @@ int main(int argc, char *argv[]) {
     auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
     
     // print summary
-    print_buffers_partition_statistics();
-    cout << "Time taken: " << duration << " milliseconds" << endl;
-    auto tuples_pr_ms = data_size / duration;
-    auto tuples_per_second = tuples_pr_ms * 1000;
-    auto million_tuples_per_second = tuples_per_second / 1000000;
-    cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
+    float tuples_pr_ms = data_size / duration;
+    float tuples_per_second = tuples_pr_ms * 1000;
+    float million_tuples_per_second = tuples_per_second / 1000000;
+    write_results_to_file(million_tuples_per_second);
+    if(verbose){
+        print_buffers_partition_statistics();
+        cout << "Time taken: " << duration << " milliseconds" << endl;
+        cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
+    }
+
 
     return 0;
 }

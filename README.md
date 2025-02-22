@@ -12,18 +12,27 @@ Compile the generate script
 g++ -o generate.o generate.cpp
 ```
 
+## Results
+
+The results will be outputted in a txt file
+
 ## How to run the code
 
 ### Run main
 Arguments
-1. hashbits
-2. number of threads
+1. hashbits=4
+2. number of threads=4
+3. verbose=0 {0,1,2}  
+    0 = no printing  
+    1 = show progress  
+    2 = additional information  
 
 ```bash
-./out.o <hashbits> <number_of_threads>
+./out.o <hashbits> <number_of_threads> <verbose>
 ```
+This will run out.o with 4 hashbits and 8 threads without printing
 ```bash
-./out.o 4 4
+./out.o 4 8 false
 ```
 
 ### Run generate
