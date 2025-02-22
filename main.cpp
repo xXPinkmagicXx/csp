@@ -54,6 +54,11 @@ void init_mutexes() {
     mutexes = new std::mutex[get_num_partitions()];
 }
 
+void init_buffers() {
+    cout << "Initializing buffers..." << endl;
+    concurrent_buffers = vector<vector<tuple<uint64_t, uint64_t>>>(get_num_partitions());
+}
+
 int hash_function(uint64_t key) {
     // Implement a hash function
     return key % (1 << HASH_BITS);
@@ -63,8 +68,10 @@ void add_tuple_to_buffer(int partition_key, tuple<uint64_t, uint64_t> tuple) {
     // Add data to buffer
     // Lock the mutex
     mutexes[partition_key].lock();
+    // cout << "Locked partition: " << partition_key << endl;
     concurrent_buffers[partition_key].push_back(tuple);
     mutexes[partition_key].unlock();
+    // cout << "Unlocked partition: " << partition_key << endl;
 }
 
 void print_hash_values(vector<tuple<uint64_t, uint64_t>> data) {
@@ -73,7 +80,7 @@ void print_hash_values(vector<tuple<uint64_t, uint64_t>> data) {
     }
 }
 void work(int thread_index, vector<tuple<uint64_t, uint64_t>> data, int start_index, int bucket_size){
-    
+    cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
     // Identify the partition by hash function
     for(int i = start_index; i < start_index + bucket_size; i++){
         // Hash key to get the partition key
@@ -83,31 +90,40 @@ void work(int thread_index, vector<tuple<uint64_t, uint64_t>> data, int start_in
         // Add tuple to buffer (using locks)
         add_tuple_to_buffer(partition_key, data[i]);
     }
-    
-    std::this_thread::sleep_for(chrono::milliseconds(thread_index));
-    cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
+    cout << "Thread #" << thread_index << " completed... "<< endl;
 }
 
 void thread_work(vector<tuple<uint64_t, uint64_t>> data) {
     
     // Initialize mutexes for each partition
     init_mutexes();
+    init_buffers();
     // Create buffers for each partition
     auto bucket_size = data.size() / NUM_THREADS;
     cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+    
+    // Initialize threads
     std::vector<std::thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
       threads[i] = thread(work, i, data, i * bucket_size, bucket_size);
     }
-  
+    // Join threads
     for (auto& t : threads) {
       t.join();
     }
-  }
 
-bool is_power_of_two(ulong x)
-{
+}
+
+bool is_power_of_two(ulong x){
     return (x & (x - 1)) == 0;
+}
+
+void print_buffers() {
+    for(int i = 0; i < concurrent_buffers.size(); i++){
+        for(int j = 0; j < concurrent_buffers[i].size(); j++){
+            cout << "Partition: " << i << " Key: " << get<0>(concurrent_buffers[i][j]) << " Value: " << get<1>(concurrent_buffers[i][j]) << endl;
+        }
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -161,10 +177,13 @@ int main(int argc, char *argv[]) {
         cout << "Closing..." << endl;
         return 1;
     }
+
     // print_hash_values(data);
 
     // Do the work in threads
     thread_work(data);
+
+    print_buffers();
 
     return 0;
 }
