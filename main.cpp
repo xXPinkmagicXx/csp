@@ -54,13 +54,13 @@ int get_num_partitions() {
 }
 
 void init_mutexes() {
-    if(verbose)
+    if(verbose==2)
         cout << "Initializing mutexes" << endl;
     mutexes = new std::mutex[get_num_partitions()];
 }
 
 void init_buffers() {
-    if(verbose)
+    if(verbose==2)
         cout << "Initializing buffers..." << endl;
     concurrent_buffers = vector<vector<tuple<uint64_t, uint64_t>>>(get_num_partitions());
 }
@@ -86,7 +86,7 @@ void print_hash_values(vector<tuple<uint64_t, uint64_t>> data) {
     }
 }
 void work(int thread_index, vector<tuple<uint64_t, uint64_t>> data, int start_index, int bucket_size){
-    if(verbose)
+    if(verbose==2)
         cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
     // Identify the partition by hash function
     for(int i = start_index; i < start_index + bucket_size; i++){
@@ -97,7 +97,7 @@ void work(int thread_index, vector<tuple<uint64_t, uint64_t>> data, int start_in
         // Add tuple to buffer (using locks)
         add_tuple_to_buffer(partition_key, data[i]);
     }
-    if(verbose)
+    if(verbose==2)
         cout << "Thread #" << thread_index << " completed... "<< endl;
 }
 
@@ -108,7 +108,7 @@ void thread_work(vector<tuple<uint64_t, uint64_t>> data) {
     init_buffers();
     // Create buffers for each partition
     auto bucket_size = data.size() / NUM_THREADS;
-    if(verbose)
+    if(verbose==2)
         cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
     
     // Initialize threads
@@ -162,11 +162,11 @@ void print_buffers_partition_statistics() {
 }
 
 
-void write_results_to_file(ulong million_tuples_per_second) {
+void write_results_to_file(float million_tuples_per_second) {
     ofstream file;
     file.open("results.txt", ios::app);
     // Write ulong to file
-    file << million_tuples_per_second;
+    file << million_tuples_per_second << ",";
     file.close();
 }
 
@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
     auto data = read_file();    
 
     auto data_size = data.size();
-    if(verbose)
+    if(verbose==2)
         cout << "Data size: " << data_size << endl;
     if(data_size == 0) {
         cout << "No data to process" << endl;
@@ -242,9 +242,9 @@ int main(int argc, char *argv[]) {
     float tuples_per_second = tuples_pr_ms * 1000;
     float million_tuples_per_second = tuples_per_second / 1000000;
     write_results_to_file(million_tuples_per_second);
-    if(verbose){
+    if(verbose==1){
         print_buffers_partition_statistics();
-        cout << "Time taken: " << duration << " milliseconds" << endl;
+        // cout << "Time taken: " << duration << " milliseconds" << endl;
         cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
     }
 
