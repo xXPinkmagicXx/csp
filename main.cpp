@@ -7,13 +7,17 @@
 #include <chrono>
 #include <mutex>
 #include <pthread.h>
-
+#include <atomic>
 
 using namespace std;
 
 const string fileName = "random_integers.txt";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
+std::mutex *mutexes;
+vector<vector<tuple<uint64_t, uint64_t>>> concurrent_buffers; // one buffer per partition 
+
+// std::atomic<int> counter(0);
 
 // Cast one string line to a integer  tupleto  
 tuple<uint64_t, uint64_t> cast_to_tuple(std::string line) {
@@ -41,9 +45,26 @@ vector<tuple<uint64_t, uint64_t>> read_file() {
     return tuples;
 }
 
+int get_num_partitions() {
+    return 1 << HASH_BITS;
+}
+
+void init_mutexes() {
+    cout << "Initializing mutexes" << endl;
+    mutexes = new std::mutex[get_num_partitions()];
+}
+
 int hash_function(uint64_t key) {
     // Implement a hash function
     return key % (1 << HASH_BITS);
+}
+
+void add_tuple_to_buffer(int partition_key, tuple<uint64_t, uint64_t> tuple) {
+    // Add data to buffer
+    // Lock the mutex
+    mutexes[partition_key].lock();
+    concurrent_buffers[partition_key].push_back(tuple);
+    mutexes[partition_key].unlock();
 }
 
 void print_hash_values(vector<tuple<uint64_t, uint64_t>> data) {
@@ -52,14 +73,28 @@ void print_hash_values(vector<tuple<uint64_t, uint64_t>> data) {
     }
 }
 void work(int thread_index, vector<tuple<uint64_t, uint64_t>> data, int start_index, int bucket_size){
+    
+    // Identify the partition by hash function
+    for(int i = start_index; i < start_index + bucket_size; i++){
+        // Hash key to get the partition key
+        auto key = get<0>(data[i]);
+        auto partition_key = hash_function(key);
+        
+        // Add tuple to buffer (using locks)
+        add_tuple_to_buffer(partition_key, data[i]);
+    }
+    
     std::this_thread::sleep_for(chrono::milliseconds(thread_index));
     cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
 }
 
 void thread_work(vector<tuple<uint64_t, uint64_t>> data) {
     
+    // Initialize mutexes for each partition
+    init_mutexes();
+    // Create buffers for each partition
     auto bucket_size = data.size() / NUM_THREADS;
-
+    cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
     std::vector<std::thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
       threads[i] = thread(work, i, data, i * bucket_size, bucket_size);
@@ -70,6 +105,10 @@ void thread_work(vector<tuple<uint64_t, uint64_t>> data) {
     }
   }
 
+bool is_power_of_two(ulong x)
+{
+    return (x & (x - 1)) == 0;
+}
 
 int main(int argc, char *argv[]) {
     int hash_bit_arg;
@@ -96,8 +135,32 @@ int main(int argc, char *argv[]) {
     
     
     // Read data from file
+    // Note that the data is/should be read only
     auto data = read_file();    
 
+    cout << "Data size: " << data.size() << endl;
+    auto data_size = data.size();
+    if(data_size == 0) {
+        cout << "No data to process" << endl;
+        cout << "Closing..." << endl;
+        return 1;
+    } 
+    
+    if(data_size < NUM_THREADS) {
+        cout << "Data size is less than the number of threads"  << endl;
+        cout << "Data size:" << data_size << "# threads" << NUM_THREADS << endl;
+        cout << "Closing..." << endl;
+        return 1;
+    }
+
+
+
+    if(!is_power_of_two(data_size)){
+        cout << "Data size is not a power of 2" << endl;
+        cout << "Use generate.o to generate data" << endl;
+        cout << "Closing..." << endl;
+        return 1;
+    }
     // print_hash_values(data);
 
     // Do the work in threads
