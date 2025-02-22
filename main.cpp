@@ -14,8 +14,11 @@ using namespace std;
 const string fileName = "random_integers.txt";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
+int DATA_SIZE = 0;
 std::mutex *mutexes;
 vector<vector<tuple<uint64_t, uint64_t>>> concurrent_buffers; // one buffer per partition 
+
+
 
 // std::atomic<int> counter(0);
 
@@ -118,12 +121,38 @@ bool is_power_of_two(ulong x){
     return (x & (x - 1)) == 0;
 }
 
-void print_buffers() {
+void print_buffers_everything() {
     for(int i = 0; i < concurrent_buffers.size(); i++){
         for(int j = 0; j < concurrent_buffers[i].size(); j++){
             cout << "Partition: " << i << " Key: " << get<0>(concurrent_buffers[i][j]) << " Value: " << get<1>(concurrent_buffers[i][j]) << endl;
         }
     }
+}
+
+void print_buffers_partition_entries() {
+    for(int i = 0; i < concurrent_buffers.size(); i++){
+        auto partition_size = concurrent_buffers[i].size();
+        // counter_arr[i] = partition_size;
+        cout << "Partition: " << i << "# entries: " << partition_size << endl;
+    }
+}
+
+void print_buffers_partition_statistics() {
+    int num_partitions = get_num_partitions();
+    auto counter_arr = new int[num_partitions];
+    
+    float mean = DATA_SIZE / num_partitions;
+    float std_dev = 0.0;
+
+    for(int i = 0; i < concurrent_buffers.size(); i++){
+        auto partition_size = concurrent_buffers[i].size();
+        // counter_arr[i] = partition_size;
+        auto variance = partition_size - mean;
+        std_dev += variance * variance; 
+    }
+
+    std_dev = sqrt(std_dev / num_partitions);
+    cout << "Expected Partion Size: " << mean << " ±" << std_dev << endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -169,8 +198,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-
-
     if(!is_power_of_two(data_size)){
         cout << "Data size is not a power of 2" << endl;
         cout << "Use generate.o to generate data" << endl;
@@ -178,12 +205,24 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    DATA_SIZE = data_size;
     // print_hash_values(data);
+
+    auto start_time = chrono::high_resolution_clock::now();
 
     // Do the work in threads
     thread_work(data);
 
-    print_buffers();
+    auto end_time = chrono::high_resolution_clock::now();
+    auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    
+    // print summary
+    print_buffers_partition_statistics();
+    cout << "Time taken: " << duration << " milliseconds" << endl;
+    auto tuples_pr_ms = data_size / duration;
+    auto tuples_per_second = tuples_pr_ms * 1000;
+    auto million_tuples_per_second = tuples_per_second / 1000000;
+    cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
 
     return 0;
 }
