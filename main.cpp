@@ -12,6 +12,7 @@
 using namespace std;
 
 const string fileName = "random_integers.txt";
+const string resultsFile = "results.csv";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
 int DATA_SIZE = 0;
@@ -164,9 +165,9 @@ void print_buffers_partition_statistics() {
 
 void write_results_to_file(float million_tuples_per_second) {
     ofstream file;
-    file.open("results.txt", ios::app);
+    file.open(resultsFile, ios::app);
     // Write ulong to file
-    file << million_tuples_per_second << ",";
+    file << HASH_BITS << "," << NUM_THREADS << "," << million_tuples_per_second << endl;
     file.close();
 }
 
