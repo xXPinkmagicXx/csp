@@ -1,6 +1,4 @@
-# csp
-Computer System Performance
-
+# Computer System Performance (CSP)
 
 ## How to compile the code
 
