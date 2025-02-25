@@ -4,7 +4,7 @@
 
 Compile the main script (remember to use `-pthread`)
 ```bash
-g++ -o out.o main.cpp -pthread
+g++ -o out.o main.cpp abstract_method.cpp concurrent_method.cpp independent_method.cpp -pthread
 ```
 
 Compile the generate script
