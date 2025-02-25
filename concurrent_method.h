@@ -80,15 +80,16 @@ class ConcurrentMethod : public AbstractMethod {
         }
 
         void print_buffers_everything() {
-            for(int i = 0; i < concurrent_buffers.size(); i++){
-                for(int j = 0; j < concurrent_buffers[i].size(); j++){
-                    cout << "Partition: " << i << " Key: " << get<0>(concurrent_buffers[i][j]) << " Value: " << get<1>(concurrent_buffers[i][j]) << endl;
+            for(int i = 0; i < concurrent_buffers.size(); i++) {
+                for(int j = 0; j < concurrent_buffers[i].size(); j++) {
+                    cout << "Partition: " << i << " Key: " << get<0>(concurrent_buffers[i][j])
+                    << " Value: " << get<1>(concurrent_buffers[i][j]) << endl;
                 }
             }
         }
         
         void print_buffers_partition_entries() {
-            for(int i = 0; i < concurrent_buffers.size(); i++){
+            for(int i = 0; i < concurrent_buffers.size(); i++) {
                 auto partition_size = concurrent_buffers[i].size();
                 // counter_arr[i] = partition_size;
                 cout << "Partition: " << i << "# entries: " << partition_size << endl;
@@ -102,7 +103,7 @@ class ConcurrentMethod : public AbstractMethod {
             float mean = DATA_SIZE / num_partitions;
             float std_dev = 0.0;
         
-            for(int i = 0; i < concurrent_buffers.size(); i++){
+            for(int i = 0; i < concurrent_buffers.size(); i++) {
                 auto partition_size = concurrent_buffers[i].size();
                 // counter_arr[i] = partition_size;
                 auto variance = partition_size - mean;

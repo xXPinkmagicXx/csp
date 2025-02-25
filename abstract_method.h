@@ -31,7 +31,7 @@ class AbstractMethod {
         }
 
         void print_hash_values(vector<tuple<uint64_t, uint64_t>> data) {
-            for(int i = 0; i < data.size(); i++){
+            for(int i = 0; i < data.size(); i++) {
                 cout << hash_function(get<0>(data[i])) << " " << get<1>(data[i]) << endl;
             }
         }

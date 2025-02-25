@@ -41,7 +41,7 @@ vector<tuple<uint64_t, uint64_t>> read_file() {
     return tuples;
 }
 
-bool is_power_of_two(ulong x){
+bool is_power_of_two(ulong x) {
     return (x & (x - 1)) == 0;
 }
 
@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
         }
         // Get and validate the verbose argument
         int verbose_arg = 0;
-        if (argc == 4 && verbose_arg >= 0 && verbose_arg < 3){
+        if (argc == 4 && verbose_arg >= 0 && verbose_arg < 3) {
             verbose_arg = stoi(argv[3]); 
         }
         verbose = verbose_arg;
@@ -88,8 +88,9 @@ int main(int argc, char *argv[]) {
     auto data = read_file();    
 
     auto data_size = data.size();
-    if(verbose==2)
+    if(verbose == 2) {
         cout << "Data size: " << data_size << endl;
+    }
     if(data_size == 0) {
         cout << "No data to process" << endl;
         cout << "Closing..." << endl;
@@ -103,7 +104,7 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    if(!is_power_of_two(data_size)){
+    if(!is_power_of_two(data_size)) {
         cout << "Data size is not a power of 2" << endl;
         cout << "Use generate.o to generate data" << endl;
         cout << "Closing..." << endl;
@@ -116,11 +117,11 @@ int main(int argc, char *argv[]) {
     auto start_time = chrono::high_resolution_clock::now();
 
     // Do the work in threads
-    ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
-    concurrent_method.thread_work(data);
+    //ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
+    //concurrent_method.thread_work(data);
 
-    //IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
-    //independent_method.thread_work(data);
+    IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
+    independent_method.thread_work(data);
 
     auto end_time = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
@@ -130,9 +131,9 @@ int main(int argc, char *argv[]) {
     float tuples_per_second = tuples_pr_ms * 1000;
     float million_tuples_per_second = tuples_per_second / 1000000;
     write_results_to_file(million_tuples_per_second);
-    if(verbose==1){
-        concurrent_method.print_buffers_partition_statistics();
-        //independent_method.print_buffers_partition_statistics();
+    if(verbose == 1) {
+        //concurrent_method.print_buffers_partition_statistics();
+        independent_method.print_buffers_partition_statistics();
         // cout << "Time taken: " << duration << " milliseconds" << endl;
         cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
     }
