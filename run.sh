@@ -65,20 +65,32 @@ do
 done
 
 # #Run independent method
-# for i in {0..5} # number of threads 
-# do
-#     NUM_THREAD=$((2**$i))
-#     for j in {1..18} # hashbits
-#     do
-#         ./$OUTPUT $i $((2**$j)) 1 0
-#     done
-# done
-# #Run concurrent method
-# for i in {1..18} # hashbits
-# do
-#     # -n flag to not print newline
-#     for j in {0..5} # number of threads 
-#     do
-#         ./$OUTPUT $i $((2**$j)) 1 1
-#     done
-# done
+echo "Running independent method..."
+for i in {0..5} # number of threads 
+do
+    NUM_THREAD=$((2**$i))
+    for j in {1..18} # hashbits
+    do
+        ./$OUTPUT $j $NUM_THREAD 1 0
+    done
+done
+
+#Run concurrent method
+echo "Running concurrent method..."
+for i in {0..5} # number of threads 
+do
+    NUM_THREAD=$((2**$i))
+    for j in {1..18} # hashbits
+    do
+        ./$OUTPUT $j $NUM_THREAD 1 1
+    done
+done
+
+for i in {1..18} # hashbits
+do
+    # -n flag to not print newline
+    for j in {0..5} # number of threads 
+    do
+        ./$OUTPUT $i $((2**$j)) 1 1
+    done
+done
