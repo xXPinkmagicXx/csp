@@ -12,12 +12,14 @@
 using namespace std;
 
 const string fileName = "random_integers.txt";
-const string resultsFile = "results.csv";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
+const string baseResultsFile = "results.csv";
+string resultsFile = "";
 int DATA_SIZE = 0;
 int verbose = 0;
 std::mutex *mutexes;
+std::mutex fileMutex;
 vector<vector<tuple<uint64_t, uint64_t>>> concurrent_buffers; // one buffer per partition 
 
 
@@ -165,10 +167,13 @@ void print_buffers_partition_statistics() {
 
 void write_results_to_file(float million_tuples_per_second) {
     ofstream file;
+    cout << "Writing results to file: " << resultsFile << endl;
+    fileMutex.lock();
     file.open(resultsFile, ios::app);
     // Write ulong to file
-    file << HASH_BITS << "," << NUM_THREADS << "," << million_tuples_per_second << endl;
+    file << HASH_BITS << "," << million_tuples_per_second << endl;
     file.close();
+    fileMutex.unlock();
 }
 
 int main(int argc, char *argv[]) {
@@ -228,6 +233,8 @@ int main(int argc, char *argv[]) {
     }
 
     DATA_SIZE = data_size;
+    resultsFile = NUM_THREADS + "_" + baseResultsFile;
+    cout << "Results file: " << resultsFile << endl;
     // print_hash_values(data);
 
     auto start_time = chrono::high_resolution_clock::now();
@@ -242,12 +249,12 @@ int main(int argc, char *argv[]) {
     float tuples_pr_ms = data_size / duration;
     float tuples_per_second = tuples_pr_ms * 1000;
     float million_tuples_per_second = tuples_per_second / 1000000;
-    write_results_to_file(million_tuples_per_second);
     if(verbose==1){
-        print_buffers_partition_statistics();
+        // print_buffers_partition_statistics();
         // cout << "Time taken: " << duration << " milliseconds" << endl;
-        cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
+        // cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
     }
+    write_results_to_file(million_tuples_per_second);
 
 
     return 0;
