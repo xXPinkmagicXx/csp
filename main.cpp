@@ -15,7 +15,6 @@ const string fileName = "random_integers.txt";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
 const string baseResultsFile = "results.csv";
-string resultsFile = "";
 int DATA_SIZE = 0;
 int verbose = 0;
 std::mutex *mutexes;
@@ -165,9 +164,10 @@ void print_buffers_partition_statistics() {
 }
 
 
-void write_results_to_file(float million_tuples_per_second) {
+void write_results_to_file(const string resultsFile, float million_tuples_per_second) {
     ofstream file;
-    cout << "Writing results to file: " << resultsFile << endl;
+    if(verbose==2)
+        cout << "Writing results to file: " << resultsFile << endl;
     fileMutex.lock();
     file.open(resultsFile, ios::app);
     // Write ulong to file
@@ -233,8 +233,7 @@ int main(int argc, char *argv[]) {
     }
 
     DATA_SIZE = data_size;
-    resultsFile = NUM_THREADS + "_" + baseResultsFile;
-    cout << "Results file: " << resultsFile << endl;
+    auto resultsFile = to_string(NUM_THREADS) + "_" + baseResultsFile;
     // print_hash_values(data);
 
     auto start_time = chrono::high_resolution_clock::now();
@@ -254,8 +253,7 @@ int main(int argc, char *argv[]) {
         // cout << "Time taken: " << duration << " milliseconds" << endl;
         // cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
     }
-    write_results_to_file(million_tuples_per_second);
-
+    write_results_to_file(resultsFile, million_tuples_per_second);
 
     return 0;
 }
