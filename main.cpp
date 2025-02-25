@@ -14,7 +14,7 @@ using namespace std;
 const string fileName = "random_integers.txt";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
-const string baseResultsFile = "results.csv";
+const string baseResultsFile = "results/results.csv";
 int DATA_SIZE = 0;
 int verbose = 0;
 std::mutex *mutexes;

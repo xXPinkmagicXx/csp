@@ -8,22 +8,20 @@ OUTPUT="out.o"
 # g++ -o $OUTPUT $SOURCE
 BASE_RESULTS_FILE="results.csv"
 
-# Delete the results file if it exists
-
-
 # Create the results files
 for i in {0..5} # number of threads 
 do
     NUM_THREAD=$((2**$i))
     RESULTS_FILE="$NUM_THREAD"_"$BASE_RESULTS_FILE"
-    if [ -f $RESULTS_FILE ]; then
+    # Delete the results file if it exists
+    if [ -f "results/$RESULTS_FILE" ]; then
         rm $RESULTS_FILE
         echo "Removed old results file: $RESULTS_FILE"
     fi
-    touch "$RESULTS_FILE"
-    echo "hash_bits, mil_tup_per_sec" >> $RESULTS_FILE
+    mkdir -p results
+    touch "results/$RESULTS_FILE"
+    echo "hash_bits,mil_tup_per_sec" >> $RESULTS_FILE
 done
-
 
 for i in {0..5} # number of threads 
 do
