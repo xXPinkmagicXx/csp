@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define source file and output binary
-SOURCE="main.cpp"
+SOURCE="main.cpp abstract_method.cpp concurrent_method.cpp independent_method.cpp"
 OUTPUT="out.o"
 FLAGS="-pthread"
 

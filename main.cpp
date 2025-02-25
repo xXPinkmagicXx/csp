@@ -1,6 +1,6 @@
 #include "concurrent_method.h"
 #include "independent_method.h"
-#include <iostream>
+#include "abstract_method.h"
 #include <tuple>
 #include <fstream>
 #include <vector>
@@ -61,11 +61,10 @@ void write_results_to_file(string path, float million_tuples_per_second) {
     fileMutex.unlock();
 }
 
-void do_independent_method(std::vector<std::tuple<uint64_t, uint64_t>> data, size_t data_size) {
+void do_method(AbstractMethod& method, std::vector<std::tuple<uint64_t, uint64_t>> data, size_t data_size, string results_file_prefix) {
     auto start_time = chrono::high_resolution_clock::now();
 
-    IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
-    independent_method.thread_work(data);
+    method.thread_work(data);
 
     auto end_time = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
@@ -74,30 +73,9 @@ void do_independent_method(std::vector<std::tuple<uint64_t, uint64_t>> data, siz
     float tuples_pr_ms = data_size / duration;
     float tuples_per_second = tuples_pr_ms * 1000;
     float million_tuples_per_second = tuples_per_second / 1000000;
-    write_results_to_file(output_dir + "independent_" + base_output_file, million_tuples_per_second);
+    write_results_to_file(output_dir + results_file_prefix + base_output_file, million_tuples_per_second);
     if(verbose == 1) {
-        independent_method.print_buffers_partition_statistics();
-        // cout << "Time taken: " << duration << " milliseconds" << endl;
-        cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
-    }
-}
-
-void do_concurrent_method(std::vector<std::tuple<uint64_t, uint64_t>> data, size_t data_size) {
-    auto start_time = chrono::high_resolution_clock::now();
-
-    ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
-    concurrent_method.thread_work(data);
-
-    auto end_time = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
-    
-    // print summary
-    float tuples_pr_ms = data_size / duration;
-    float tuples_per_second = tuples_pr_ms * 1000;
-    float million_tuples_per_second = tuples_per_second / 1000000;
-    write_results_to_file(output_dir + "concurrent_" + base_output_file, million_tuples_per_second);
-    if(verbose == 1) {
-        concurrent_method.print_buffers_partition_statistics();
+        method.print_buffers_partition_statistics();
         // cout << "Time taken: " << duration << " milliseconds" << endl;
         cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
     }
@@ -171,9 +149,11 @@ int main(int argc, char *argv[]) {
     
     // Do the correct type of partitioning
     if (method_type == 0) {
-        do_independent_method(data, data_size);
+        IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
+        do_method(independent_method, data, data_size, "independent_");
     } else if (method_type == 1) {
-        do_concurrent_method(data, data_size);
+        ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
+        do_method(concurrent_method, data, data_size, "concurrent_");
     } else {
         cout << "Unknown method type" << endl;
         cout << "Closing..." << endl;
