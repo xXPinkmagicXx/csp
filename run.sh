@@ -21,8 +21,8 @@ if [ ! -d $RESULTS_DIR ]; then
 fi
 
 # Define result files
-INDEPENDENT_RESULTS_FILE="./$RESULTS_DIR/independent_results.csv"
-CONCURRENT_RESULTS_FILE="./$RESULTS_DIR/concurrent_results.csv"
+INDEPENDENT_RESULTS_FILE="./$RESULTS_DIR/independent"
+CONCURRENT_RESULTS_FILE="./$RESULTS_DIR/concurrent"
 
 # Delete the results files if they exists
 if [ -f $INDEPENDENT_RESULTS_FILE ]; then
@@ -35,17 +35,17 @@ if [ -f $CONCURRENT_RESULTS_FILE ]; then
 fi
 
 # Create the results files
-touch $INDEPENDENT_RESULTS_FILE
-echo "hash_bits,mil_tup_per_sec" >> $INDEPENDENT_RESULTS_FILE
-touch $CONCURRENT_RESULTS_FILE
-echo "hash_bits,mil_tup_per_sec" >> $CONCURRENT_RESULTS_FILE
+# touch $INDEPENDENT_RESULTS_FILE
+# echo "hash_bits,mil_tup_per_sec" >> $INDEPENDENT_RESULTS_FILE
+# touch $CONCURRENT_RESULTS_FILE
+# echo "hash_bits,mil_tup_per_sec" >> $CONCURRENT_RESULTS_FILE
 
 ## Create results files
-for i in {1..18} # hashbits
+for i in {1..5} # hashbits
 do
     NUM_THREAD=$((2**$i))
-    IND_RESULTS_FILE="$NUM_THREAD"_"$INDEPENDENT_RESULTS_FILE"
-    CON_RESULTS_FILE="$NUM_THREAD"_"$CONCURRENT_RESULTS_FILE"
+    IND_RESULTS_FILE="$INDEPENDENT_RESULTS_FILE"_"$NUM_THREAD.csv"
+    CON_RESULTS_FILE="$CONCURRENT_RESULTS_FILE"_"$NUM_THREAD.csv"
     # Remove old independent results file
     if [ -f "results/$IND_RESULTS_FILE" ]; then
         rm $IND_RESULTS_FILE
@@ -58,8 +58,8 @@ do
     fi
 
     mkdir -p results # Make dir if it doesn't exist
-    touch "results/$CON_RESULTS_FILE"
-    touch "results/$IND_RESULTS_FILE"
+    touch "$CON_RESULTS_FILE"
+    touch "$IND_RESULTS_FILE"
     echo "hash_bits,mil_tup_per_sec" >> $CON_RESULTS_FILE
     echo "hash_bits,mil_tup_per_sec" >> $IND_RESULTS_FILE
 done
