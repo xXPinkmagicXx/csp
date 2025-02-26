@@ -18,7 +18,7 @@ int AbstractMethod::hash_function(uint64_t key) const {
 }
 
 void AbstractMethod::print_hash_values(const vector<tuple<uint64_t, uint64_t>>& data) const {
-    for (const auto& entry : data) {
+    for (const tuple<uint64_t, uint64_t>& entry : data) {
         cout << hash_function(get<0>(entry)) << " " << get<1>(entry) << endl;
     }
 }

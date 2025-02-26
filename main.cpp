@@ -12,14 +12,12 @@ using namespace std;
 const string input_file = "random_integers.txt";
 const string output_dir = "./results/";
 const string base_output_file = "results.csv";
+const string baseResultsFile = "results/results.csv";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
-const string baseResultsFile = "results/results.csv";
 int DATA_SIZE = 0;
-int verbose = 0;
-std::mutex *mutexes;
-std::mutex fileMutex;
-vector<vector<tuple<uint64_t, uint64_t>>> concurrent_buffers; // one buffer per partition 
+int VERBOSE = 0;
+mutex fileMutex;
 int method_type = 0;
 
 // Cast one string line to a unsigned 64-bit integer tuplet  
@@ -41,13 +39,13 @@ vector<tuple<uint64_t, uint64_t>> read_file() {
     vector<tuple<uint64_t, uint64_t>> tuples;
     while (getline(file, str))
     {
-        auto tuple = cast_to_tuple(str);
+        tuple<uint64_t, uint64_t> tuple = cast_to_tuple(str);
         tuples.push_back(tuple);
     }
     return tuples;
 }
 
-bool is_power_of_two(ulong x) {
+bool is_power_of_two(uint64_t x) {
     return (x & (x - 1)) == 0;
 }
 
@@ -61,7 +59,7 @@ void write_results_to_file(string path, float million_tuples_per_second) {
     fileMutex.unlock();
 }
 
-void do_method(AbstractMethod& method, std::vector<std::tuple<uint64_t, uint64_t>> data, size_t data_size, string results_file_prefix) {
+void do_method(AbstractMethod& method, vector<tuple<uint64_t, uint64_t>> data, size_t data_size, string results_file_prefix) {
     auto start_time = chrono::high_resolution_clock::now();
 
     method.thread_work(data);
@@ -74,7 +72,7 @@ void do_method(AbstractMethod& method, std::vector<std::tuple<uint64_t, uint64_t
     float tuples_per_second = tuples_pr_ms * 1000;
     float million_tuples_per_second = tuples_per_second / 1000000;
     write_results_to_file(output_dir + results_file_prefix + base_output_file, million_tuples_per_second);
-    if(verbose == 1) {
+    if(VERBOSE == 1) {
         method.print_buffers_partition_statistics();
         // cout << "Time taken: " << duration << " milliseconds" << endl;
         cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
@@ -107,7 +105,7 @@ int main(int argc, char *argv[]) {
         if (argc == 5) {
             method_type = stoi(argv[4]);
         }
-        verbose = verbose_arg;
+        VERBOSE = verbose_arg;
         HASH_BITS = hash_bit_arg;
         NUM_THREADS = thread_count_arg;
     }
@@ -115,10 +113,10 @@ int main(int argc, char *argv[]) {
     
     // Read data from file
     // Note that the data is/should be read only
-    auto data = read_file();    
+    vector<tuple<uint64_t, uint64_t>> data = read_file();    
 
-    auto data_size = data.size();
-    if(verbose == 2) {
+    uint64_t data_size = data.size();
+    if(VERBOSE == 2) {
         cout << "Data size: " << data_size << endl;
     }
     if(data_size == 0) {
@@ -142,17 +140,17 @@ int main(int argc, char *argv[]) {
     }
 
     DATA_SIZE = data_size;
-    auto resultsFile = to_string(NUM_THREADS) + "_" + baseResultsFile;
+    string resultsFile = to_string(NUM_THREADS) + "_" + baseResultsFile;
 
     // Start timer
     auto start_time = chrono::high_resolution_clock::now();
     
     // Do the correct type of partitioning
     if (method_type == 0) {
-        IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
+        IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, VERBOSE);
         do_method(independent_method, data, data_size, "independent_");
     } else if (method_type == 1) {
-        ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
+        ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, VERBOSE);
         do_method(concurrent_method, data, data_size, "concurrent_");
     } else {
         cout << "Unknown method type" << endl;
