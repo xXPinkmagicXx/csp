@@ -54,3 +54,33 @@ Note that you can only generate data with size of the power of 2
 ```bash
  ./generate.o 8
 ```
+
+### Running experiment on remote server using TMUX
+
+Create a new tmux session with
+```bash
+tmux new-session -s latencylegends12
+```
+
+Once inside the session, run the shell script
+```bash
+./run.sh
+```
+
+To detach from an active session, press **Ctrl + B**, then release both keys, then press **D**.
+
+To list active sessions, write
+```bash
+tmux ls
+```
+
+To reattach to a running/active session, write
+```bash
+tmux attach -t latencylegends12
+```
+
+You can kill the session from outside with
+```bash
+tmux kill-session -t latencylegends12
+```
+or alternatively, write 'exit' inside the session.
