@@ -43,23 +43,23 @@ do
 done
 
 # #Run independent method
-echo "Running independent method..."
 for i in {0..5}
 do
     NUM_THREAD=$((2**$i)) # number of threads
     for j in {1..18} # hashbits
     do
+        echo "Running independent method with $NUM_THREAD threads and $j hashbits" 
         ./$OUTPUT $j $NUM_THREAD 1 0
     done
 done
 
 #Run concurrent method
-echo "Running concurrent method..."
 for i in {0..5}
 do
     NUM_THREAD=$((2**$i)) # number of threads
     for j in {1..18} # hashbits
     do
+        echo "Running concurrent method with $NUM_THREAD threads and $j hashbits" 
         ./$OUTPUT $j $NUM_THREAD 1 1
     done
 done
