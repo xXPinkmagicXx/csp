@@ -16,41 +16,50 @@ if [ ! -d $RESULTS_DIR ]; then
    mkdir $RESULTS_DIR
 fi
 
-# Define result files
-INDEPENDENT_RESULTS_FILE="./$RESULTS_DIR/independent_results.csv"
-CONCURRENT_RESULTS_FILE="./$RESULTS_DIR/concurrent_results.csv"
+# Define result file prefixes
+INDEPENDENT_RESULTS_PREFIX="./$RESULTS_DIR/independent"
+CONCURRENT_RESULTS_PREFIX="./$RESULTS_DIR/concurrent"
 
-# Delete the results files if they exists
-if [ -f $INDEPENDENT_RESULTS_FILE ]; then
-   rm $INDEPENDENT_RESULTS_FILE
-   echo "Removed old 'Independent' results file"
-fi
-if [ -f $CONCURRENT_RESULTS_FILE ]; then
-   rm $CONCURRENT_RESULTS_FILE
-   echo "Removed old 'Concurrent' results file"
-fi
-
-# Create the results files
-touch $INDEPENDENT_RESULTS_FILE
-echo "hash_bits, num_threads, mil_tup_per_sec" >> $INDEPENDENT_RESULTS_FILE
-touch $CONCURRENT_RESULTS_FILE
-echo "hash_bits, num_threads, mil_tup_per_sec" >> $CONCURRENT_RESULTS_FILE
-
-#Run independent method
-for i in {1..18} # hashbits
+## Create results files
+for i in {0..5}
 do
-    # -n flag to not print newline
-    for j in {0..5} # number of threads 
+    NUM_THREAD=$((2**$i))
+    IND_RESULTS_FILE="$INDEPENDENT_RESULTS_PREFIX"_"$NUM_THREAD.csv"
+    CON_RESULTS_FILE="$CONCURRENT_RESULTS_PREFIX"_"$NUM_THREAD.csv"
+    # Remove old independent results file
+    if [ -f $IND_RESULTS_FILE ]; then
+        rm $IND_RESULTS_FILE
+        echo "Removed old results file: $IND_RESULTS_FILE"
+    fi
+    ## Remove old concurrent results file
+    if [ -f $CON_RESULTS_FILE ]; then
+        rm $CON_RESULTS_FILE
+        echo "Removed old results file: $CON_RESULTS_FILE"
+    fi
+    touch $IND_RESULTS_FILE
+    touch $CON_RESULTS_FILE
+    echo "hash_bits,mil_tup_per_sec" >> $IND_RESULTS_FILE
+    echo "hash_bits,mil_tup_per_sec" >> $CON_RESULTS_FILE
+done
+
+# #Run independent method
+echo "Running independent method..."
+for i in {0..5}
+do
+    NUM_THREAD=$((2**$i)) # number of threads
+    for j in {1..18} # hashbits
     do
-        ./$OUTPUT $i $((2**$j)) 1 0
+        ./$OUTPUT $j $NUM_THREAD 1 0
     done
 done
+
 #Run concurrent method
-for i in {1..18} # hashbits
+echo "Running concurrent method..."
+for i in {0..5}
 do
-    # -n flag to not print newline
-    for j in {0..5} # number of threads 
+    NUM_THREAD=$((2**$i)) # number of threads
+    for j in {1..18} # hashbits
     do
-        ./$OUTPUT $i $((2**$j)) 1 1
+        ./$OUTPUT $j $NUM_THREAD 1 1
     done
 done

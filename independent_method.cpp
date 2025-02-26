@@ -13,8 +13,8 @@ void IndependentMethod::work(int thread_index, const vector<tuple<uint64_t, uint
     // Identify the partition by hash function
     for (int i = start_index; i < start_index + bucket_size; i++) {
         // Hash key to get the partition key
-        auto key = get<0>(data[i]);
-        auto partition_key = hash_function(key);
+        uint64_t key = get<0>(data[i]);
+        int partition_key = hash_function(key);
 
         // Add tuple to local buffer
         buffer[partition_key].push_back(data[i]);
@@ -28,7 +28,7 @@ void IndependentMethod::work(int thread_index, const vector<tuple<uint64_t, uint
 
 void IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data) {
     buffer_collection.resize(NUM_THREADS);
-    auto bucket_size = data.size() / NUM_THREADS;
+    uint64_t bucket_size = data.size() / NUM_THREADS;
 
     if (VERBOSE == 2) {
         cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
@@ -41,7 +41,7 @@ void IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& dat
     }
 
     // Join threads
-    for (auto& t : threads) {
+    for (thread& t : threads) {
         t.join();
     }
 }
@@ -61,7 +61,7 @@ void IndependentMethod::print_buffers_everything() {
 void IndependentMethod::print_buffers_partition_entries() {
     for (int i = 0; i < buffer_collection.size(); i++) {
         for (int j = 0; j < buffer_collection[i].size(); j++) {
-            auto partition_size = buffer_collection[i][j].size();
+            int partition_size = buffer_collection[i][j].size();
             cout << "Thread: " << i << " Partition: " << j << "# entries: " << partition_size << endl;
         }
     }
@@ -69,15 +69,14 @@ void IndependentMethod::print_buffers_partition_entries() {
 
 void IndependentMethod::print_buffers_partition_statistics() {
     int num_partitions = get_num_partitions();
-    auto counter_arr = new int[num_partitions];
 
     float mean = (DATA_SIZE / num_partitions) / NUM_THREADS;
     float std_dev = 0.0;
 
     for (int i = 0; i < buffer_collection.size(); i++) {
         for (int j = 0; j < buffer_collection[i].size(); j++) {
-            auto partition_size = buffer_collection[i][j].size();
-            auto variance = partition_size - mean;
+            int partition_size = buffer_collection[i][j].size();
+            float variance = partition_size - mean;
             std_dev += variance * variance;
         }
     }

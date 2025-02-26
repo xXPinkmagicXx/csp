@@ -11,12 +11,13 @@ using namespace std;
 
 const string input_file = "random_integers.txt";
 const string output_dir = "./results/";
-const string base_output_file = "results.csv";
+const string output_file_extension = ".csv";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
 int DATA_SIZE = 0;
-int verbose = 0;
+int VERBOSE = 0;
 int method_type = 0;
+mutex fileMutex;
 
 // Cast one string line to a unsigned 64-bit integer tuplet  
 tuple<uint64_t, uint64_t> cast_to_tuple(string line) {
@@ -37,13 +38,13 @@ vector<tuple<uint64_t, uint64_t>> read_file() {
     vector<tuple<uint64_t, uint64_t>> tuples;
     while (getline(file, str))
     {
-        auto tuple = cast_to_tuple(str);
+        tuple<uint64_t, uint64_t> tuple = cast_to_tuple(str);
         tuples.push_back(tuple);
     }
     return tuples;
 }
 
-bool is_power_of_two(ulong x) {
+bool is_power_of_two(uint64_t x) {
     return (x & (x - 1)) == 0;
 }
 
@@ -52,11 +53,12 @@ void write_results_to_file(string path, float million_tuples_per_second) {
     ofstream file;
     file.open(path, ios::app);
     // Write ulong to file
-    file << HASH_BITS << "," << NUM_THREADS << "," << million_tuples_per_second << endl;
+    file << HASH_BITS << "," << million_tuples_per_second << endl;
     file.close();
+    fileMutex.unlock();
 }
 
-void do_method(AbstractMethod& method, std::vector<std::tuple<uint64_t, uint64_t>> data, size_t data_size, string results_file_prefix) {
+void do_method(AbstractMethod& method, vector<tuple<uint64_t, uint64_t>> data, size_t data_size, string output_file_name) {
     auto start_time = chrono::high_resolution_clock::now();
 
     method.thread_work(data);
@@ -68,8 +70,8 @@ void do_method(AbstractMethod& method, std::vector<std::tuple<uint64_t, uint64_t
     float tuples_pr_ms = data_size / duration;
     float tuples_per_second = tuples_pr_ms * 1000;
     float million_tuples_per_second = tuples_per_second / 1000000;
-    write_results_to_file(output_dir + results_file_prefix + base_output_file, million_tuples_per_second);
-    if(verbose == 1) {
+    write_results_to_file(output_dir + output_file_name + output_file_extension, million_tuples_per_second);
+    if(VERBOSE == 1) {
         method.print_buffers_partition_statistics();
         // cout << "Time taken: " << duration << " milliseconds" << endl;
         cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
@@ -102,7 +104,7 @@ int main(int argc, char *argv[]) {
         if (argc == 5) {
             method_type = stoi(argv[4]);
         }
-        verbose = verbose_arg;
+        VERBOSE = verbose_arg;
         HASH_BITS = hash_bit_arg;
         NUM_THREADS = thread_count_arg;
     }
@@ -110,10 +112,10 @@ int main(int argc, char *argv[]) {
     
     // Read data from file
     // Note that the data is/should be read only
-    auto data = read_file();    
+    vector<tuple<uint64_t, uint64_t>> data = read_file();    
 
-    auto data_size = data.size();
-    if(verbose == 2) {
+    uint64_t data_size = data.size();
+    if(VERBOSE == 2) {
         cout << "Data size: " << data_size << endl;
     }
     if(data_size == 0) {
@@ -137,15 +139,14 @@ int main(int argc, char *argv[]) {
     }
 
     DATA_SIZE = data_size;
-    // print_hash_values(data);
-
+    
     // Do the correct type of partitioning
     if (method_type == 0) {
-        IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
-        do_method(independent_method, data, data_size, "independent_");
+        IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, VERBOSE);
+        do_method(independent_method, data, data_size, "independent_" + to_string(NUM_THREADS));
     } else if (method_type == 1) {
-        ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, verbose);
-        do_method(concurrent_method, data, data_size, "concurrent_");
+        ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, VERBOSE);
+        do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
     } else {
         cout << "Unknown method type" << endl;
         cout << "Closing..." << endl;
@@ -154,4 +155,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-

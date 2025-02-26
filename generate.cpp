@@ -8,7 +8,7 @@ using namespace std;
 
 random_device rd;
 mt19937 gen(rd());
-uniform_int_distribution<uint64_t> dis(std::numeric_limits<uint64_t>::min(), std::numeric_limits<uint64_t>::max());
+uniform_int_distribution<uint64_t> dis(numeric_limits<uint64_t>::min(), numeric_limits<uint64_t>::max());
 
 set<uint64_t> generated_numbers;
 

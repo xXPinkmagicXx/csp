@@ -84,7 +84,7 @@ void ConcurrentMethod::print_buffers_partition_entries() {
 
 void ConcurrentMethod::print_buffers_partition_statistics() {
     int num_partitions = get_num_partitions();
-    auto counter_arr = new int[num_partitions];
+    //auto counter_arr = new int[num_partitions];
 
     float mean = DATA_SIZE / num_partitions;
     float std_dev = 0.0;
