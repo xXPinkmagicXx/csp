@@ -14,7 +14,6 @@ const string output_dir = "./results/";
 const string output_file_extension = ".csv";
 int HASH_BITS = 4;
 int NUM_THREADS = 4;
-int DATA_SIZE = 0;
 int VERBOSE = 0;
 int method_type = 0;
 mutex fileMutex;
@@ -47,7 +46,6 @@ vector<tuple<uint64_t, uint64_t>> read_file() {
 bool is_power_of_two(uint64_t x) {
     return (x & (x - 1)) == 0;
 }
-
 
 void write_results_to_file(string path, float million_tuples_per_second) {
     ofstream file;
@@ -137,15 +135,13 @@ int main(int argc, char *argv[]) {
         cout << "Closing..." << endl;
         return 1;
     }
-
-    DATA_SIZE = data_size;
     
     // Do the correct type of partitioning
     if (method_type == 0) {
-        IndependentMethod independent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, VERBOSE);
+        IndependentMethod independent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
         do_method(independent_method, data, data_size, "independent_" + to_string(NUM_THREADS));
     } else if (method_type == 1) {
-        ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, DATA_SIZE, VERBOSE);
+        ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
         do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
     } else {
         cout << "Unknown method type" << endl;

@@ -84,3 +84,8 @@ You can kill the session from outside with
 tmux kill-session -t latencylegends12
 ```
 or alternatively, write 'exit' inside the session.
+
+To copy the results to your Desktop
+```bash
+scp -r group12@dionysos.itu.dk:/home/group12/csp/results ~/Desktop/
+```
