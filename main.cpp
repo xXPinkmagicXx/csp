@@ -56,10 +56,10 @@ void write_results_to_file(string path, float million_tuples_per_second) {
     fileMutex.unlock();
 }
 
-void do_method(AbstractMethod& method, vector<tuple<uint64_t, uint64_t>> data, size_t data_size, string output_file_name) {
+void do_method(AbstractMethod& method, const vector<tuple<uint64_t, uint64_t>>& data, size_t data_size, string output_file_name) {
     auto start_time = chrono::high_resolution_clock::now();
 
-    method.thread_work(data);
+    method.thread_work(cref(data));
 
     auto end_time = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();

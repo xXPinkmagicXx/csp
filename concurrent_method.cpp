@@ -46,7 +46,7 @@ void ConcurrentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data
     // Initialize threads
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
-        threads[i] = thread(&ConcurrentMethod::work, this, i, data, i * bucket_size, bucket_size);
+        threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
     }
 
     // Join threads

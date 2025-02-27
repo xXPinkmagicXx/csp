@@ -34,13 +34,11 @@ void IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& dat
         cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
     }
 
-    // Initialize threads
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
-        threads[i] = thread(&IndependentMethod::work, this, i, data, i * bucket_size, bucket_size);
+        threads[i] = thread(&IndependentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
     }
 
-    // Join threads
     for (thread& t : threads) {
         t.join();
     }
