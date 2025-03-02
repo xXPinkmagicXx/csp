@@ -1,5 +1,6 @@
 #include "concurrent_method.h"
 #include "independent_method.h"
+#include "atomic_method.h"
 #include "abstract_method.h"
 #include <tuple>
 #include <fstream>
@@ -143,7 +144,11 @@ int main(int argc, char *argv[]) {
     } else if (method_type == 1) {
         ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
         do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
-    } else {
+    } else if (method_type == 2) {
+        AtomicMethod atomic_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
+        do_method(atomic_method, data, data_size, "atomic_" + to_string(NUM_THREADS));
+    }
+    else {
         cout << "Unknown method type" << endl;
         cout << "Closing..." << endl;
         return 1;
