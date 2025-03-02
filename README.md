@@ -22,11 +22,22 @@ The columns are
 
 ## How to run the code
 
-### Run experiment
+### Run All Experiment (recommended)
 Run the bash script and regenerate the `results.csv` file
 ```bash
 ./run.sh
 ```
+
+### Run graph.py
+Run `graph.py` to generate the two graphs `concurrent_fig.png` and `independent_fig.png`
+
+Note: it is assumed that `./run.sh` has been run before generating the graphs
+
+```bash
+python graph.py
+```
+
+This will run the block inside `if __name__ == '__main__'`
 
 ### Run main
 Arguments
