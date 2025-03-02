@@ -1,27 +1,59 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import platform 
+import os
+import psutil
 
-def main():
-    pass
+NUM_THREADS = [1, 2, 4, 8, 16, 32]
 
-def read_data():
-    pass
+def read_data(method: str) -> list[pd.DataFrame]:
+    all_results = []
+    for i in NUM_THREADS:
+        results = pd.read_csv(f"results/{method}_{i}.csv")
+        all_results.append(results)
+    return all_results
 
-def generate_graph(all_results: list[pd.DataFrame], num_threads: list[int]):
-    ## Save graph to file
-    # fig = plt.figure(figsize=(10, 6))
-    for i in range(len(num_threads)):
+def read_concurrent_data() -> list[pd.DataFrame]:
+    return read_data("concurrent")
+
+def read_independent_data() -> list[pd.DataFrame]:
+    return read_data("independent")
+
+def generate_current_graphs() -> None:
+    data = read_concurrent_data()
+    generate_graph("Concurrent", data)
+
+def generate_independent_graphs()-> None:
+    data = read_independent_data()
+    generate_graph("Independent", data)
+
+def generate_graph(method: str, all_results: list[pd.DataFrame]) -> None:
+    plt.close() # Close the previous figure to avoid overlapping
+    for i in range(len(NUM_THREADS)):
         xs = all_results[i]["hash_bits"]
         ys = all_results[i]["mil_tup_per_sec"]
-        plt.plot(xs, ys, marker='o', label=f"{num_threads[i]} threads")
+        plt.plot(xs, ys, marker='o', label=f"{NUM_THREADS[i]} threads")
+    
+    # Get the system and hardware information
+    current_processor = platform.processor()
+    physical_cores = psutil.cpu_count(logical=False)
+    logical_cores = psutil.cpu_count(logical=True)
+    system_os = platform.system() # e.g. Windows, Linux
+    
+    title = f"{method} Method on {system_os} {current_processor} {physical_cores}/{logical_cores} cores"
+    plt.title(title)
     plt.legend()
-    plt.xlabel("Hash bits")
     ## xticks even only 
+    plt.xlabel("Hash bits")
     plt.xticks(range(0, 20, 2))
-    plt.xticks()
     plt.ylabel("Million tuples per second")
-    plt.savefig("results/fig.png")
+    plt.savefig(f"results/{method.lower()}_fig.png")
+
+def main():
+    # When running the script, it will generate the graphs
+    generate_current_graphs()
+    generate_independent_graphs()
 
 if __name__ == '__main__':
     main()
