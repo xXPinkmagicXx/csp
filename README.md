@@ -14,11 +14,34 @@ g++ -o generate.o generate.cpp
 
 ## Results
 
-results are in `results.csv` file 
-The columns are
+The results are saved in the folder `results/`  
+Files are formatted: `<methods>_<#threads>.csv`  
+Each file contains
 - hash_bits
-- num_threads
 - mil_tup_per_sec
+
+## Python Environment (Python=3.12.9)
+
+Create env with conda or python
+
+### Install nessesary requirments to run python script
+```bash
+pip install -r requirements.txt
+```
+
+### Updating requirements.txt
+
+The easiest way is to use `pipreqs`. Install by `pip install pipreqs`   
+```
+pipreqs . --force
+```
+Note: 
+- `--force` overrides the current `requirements.txt` file.
+- `.` (the dot in the code) is the path to the project. So "." is the current folder
+
+
+
+
 
 ## How to run the code
 
