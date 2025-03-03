@@ -30,10 +30,13 @@ def generate_independent_graphs()-> None:
 
 def generate_graph(method: str, all_results: list[pd.DataFrame]) -> None:
     plt.close() # Close the previous figure to avoid overlapping
+    plt.rcParams["axes.prop_cycle"] = plt.cycler(
+    color=plt.rcParams['axes.prop_cycle'].by_key()['color'][:6],
+    marker=['o', 's', 'D', '^', 'v', '*'])
     for i in range(len(NUM_THREADS)):
         xs = all_results[i]["hash_bits"]
         ys = all_results[i]["mil_tup_per_sec"]
-        plt.plot(xs, ys, marker='o', label=f"{NUM_THREADS[i]} threads")
+        plt.plot(xs, ys, label=f"{NUM_THREADS[i]} threads")
     
     # Get the system and hardware information
     current_processor = platform.processor()
