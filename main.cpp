@@ -5,6 +5,7 @@
 #include <fstream>
 #include <vector>
 #include <thread>
+// #include <pthread>
 #include <chrono>
 
 using namespace std;
@@ -59,7 +60,7 @@ void write_results_to_file(string path, float million_tuples_per_second) {
 void do_method(AbstractMethod& method, const vector<tuple<uint64_t, uint64_t>>& data, size_t data_size, string output_file_name) {
     auto start_time = chrono::high_resolution_clock::now();
 
-    method.thread_work(cref(data));
+    method.thread_work_affinity(cref(data));
 
     auto end_time = chrono::high_resolution_clock::now();
     auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
@@ -136,18 +137,21 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
+    ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
+    do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
+
     // Do the correct type of partitioning
-    if (method_type == 0) {
-        IndependentMethod independent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
-        do_method(independent_method, data, data_size, "independent_" + to_string(NUM_THREADS));
-    } else if (method_type == 1) {
-        ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
-        do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
-    } else {
-        cout << "Unknown method type" << endl;
-        cout << "Closing..." << endl;
-        return 1;
-    }
+    // if (method_type == 0) {
+    //     IndependentMethod independent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
+    //     do_method(independent_method, data, data_size, "independent_" + to_string(NUM_THREADS));
+    // } else if (method_type == 1) {
+    //     ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
+    //     do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
+    // } else {
+    //     cout << "Unknown method type" << endl;
+    //     cout << "Closing..." << endl;
+    //     return 1;
+    // }
 
     return 0;
 }
