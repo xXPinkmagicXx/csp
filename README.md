@@ -49,10 +49,25 @@ Note:
 - `.` (the dot in the code) is the path to the project. So "." is the current folder
 
 
-
-
-
 ## How to run the code
+
+### Run via Control 
+
+Compile, test and run via `control.sh`
+You can pass in
+- run: runs `./run.sh`
+- test: run `out.o` with default args
+- build: compiles the code
+
+```bash
+./control.sh <function>
+```
+
+```bash
+./control.sh build
+Compiled: out.o
+```
+
 
 ### Run All Experiment (recommended)
 Run the bash script and regenerate the `results.csv` file
@@ -81,11 +96,11 @@ Arguments
     2 = additional information  
 
 ```bash
-./out.o <hashbits> <number_of_threads> <verbose>
+./out.o <hashbits> <number_of_threads> <verbose> <method> <path_to_affinity_file>
 ```
 This will run out.o with 4 hashbits and 8 threads without printing
 ```bash
-./out.o 4 8 false
+./out.o 4 8 0 1 affinity/numa_0.txt
 ```
 
 ### Run generate

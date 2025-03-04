@@ -10,6 +10,14 @@
 
 using namespace std;
 
+struct ProgramArgs {
+    int hash_bits = 4;
+    int num_threads = 4 ;
+    int verbose = 0;
+    int method_type = 0;
+    string affinity_file = "";
+};
+
 const string input_file = "random_integers.txt";
 const string output_dir = "./results/";
 const string output_file_extension = ".csv";
@@ -17,6 +25,8 @@ int HASH_BITS = 4;
 int NUM_THREADS = 4;
 int VERBOSE = 0;
 int method_type = 0;
+string affinity_file = "";
+
 mutex fileMutex;
 
 // Cast one string line to a unsigned 64-bit integer tuplet  
@@ -77,37 +87,68 @@ void do_method(AbstractMethod& method, const vector<tuple<uint64_t, uint64_t>>& 
     }
 }
 
-int main(int argc, char *argv[]) {
-    
-    if(argc <= 2 ) {
-        cout << "Using default values hash_bits=" << HASH_BITS << " thread_count=" << NUM_THREADS << endl;
-    } else {
-        // Get and validate the hash bits argument 
-        int hash_bit_arg = stoi(argv[1]);
-        if(hash_bit_arg <= 0 || hash_bit_arg > 18) {
-            cout << "First arg: enter a positive number between 1-18" << endl;
-            return 1;
+bool read_args(int argc, char *argv[], ProgramArgs &args) {
+    try {
+        if (argc > 1) {
+            // Get and validate the hash bits argument 
+            args.hash_bits = stoi(argv[1]);
+            cout << "zero arg: " << argv[0] << endl;
+            cout << "first arg: " << argv[1] << endl;
+            if (args.hash_bits <= 0 || args.hash_bits > 18) {
+                cout << "First arg: enter a positive number between 1-18" << endl;
+                return false;
+            }
         }
-        
-        // Get and validate the # threads argument
-        int thread_count_arg = stoi(argv[2]);
-        if(thread_count_arg <= 0 || thread_count_arg > 32) {
-            cout << "Second arg: enter positive number between 1-32" << endl;
-            return 1;
+
+        if (argc > 2) {
+            // Get and validate the # threads argument
+            args.num_threads = stoi(argv[2]);
+            cout << "second arg: " << argv[2] << endl;
+            if (args.num_threads <= 0 || args.num_threads > 32) {
+                cout << "Second arg: enter positive number between 1-32" << endl;
+                return false;
+            }
         }
-        // Get and validate the verbose argument
-        int verbose_arg = 0;
-        if (argc >= 4 && verbose_arg >= 0 && verbose_arg < 3) {
-            verbose_arg = stoi(argv[3]); 
+
+        if (argc > 3) {
+            // Get and validate the verbose argument
+            args.verbose = stoi(argv[3]);
+            cout << "third arg: " << argv[3] << endl;
+            if (args.verbose < 0 || args.verbose >= 3) {
+                cout << "Third arg: enter a number between 0-2 for verbosity" << endl;
+                return false;
+            }
         }
-        if (argc >= 5) {
-            method_type = stoi(argv[4]);
+
+        if (argc > 4) {
+            // Get and validate the method type argument
+            cout << "Forth arg: " << argv[4] << endl;
+            args.method_type = stoi(argv[4]);
         }
-        VERBOSE = verbose_arg;
-        HASH_BITS = hash_bit_arg;
-        NUM_THREADS = thread_count_arg;
+
+        if (argc > 5) {
+            // Optional affinity file
+            cout << "fifth arg: " << argv[5] << endl;
+            args.affinity_file = argv[5];
+        }
+    } catch (const invalid_argument& e) {
+        cout << "Invalid argument: " << e.what() << endl;
+        return false;
+    } catch (const out_of_range& e) {
+        cout << "Argument out of range: " << e.what() << endl;
+        return false;
     }
-    
+
+    return true;
+}
+
+int main(int argc, char *argv[]) {
+    ProgramArgs args;
+    auto was_successful = read_args(argc, argv, args);
+    if(!was_successful) {
+        cout << "Reading args failed..." << endl;
+        return 1;
+    }
     
     // Read data from file
     // Note that the data is/should be read only
@@ -137,8 +178,10 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     
-    ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
-    do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
+    // Print out affinity file
+    cout << "Affinity file: " << affinity_file << endl;
+    // ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
+    // do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
 
     // Do the correct type of partitioning
     // if (method_type == 0) {
