@@ -11,6 +11,15 @@ Compile the generate script
 ```bash
 g++ -o generate.o generate.cpp
 ```
+## Affinity
+- All in one numa node
+- All different cores (no hyper threading)
+- No config
+
+## Perf
+- Context switches
+- Cache misses
+
 
 ## Results
 
