@@ -18,6 +18,8 @@ elif [ $1 = "test" ]; then
 elif [ $1 = "run" ]; then
     echo "Running: run.sh"
     ./run.sh 
+elif [ $1 = "affinity" ]; then
+    
 else
     echo "Invalid argument: $1"
 fi
