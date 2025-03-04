@@ -44,17 +44,17 @@ void ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_
     if (VERBOSE == 2)
         cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
 
-    vector<int> argv = {0, 1, 2, 3};
-    auto has_affinity = read_affinity_file();
+    auto is_affinity_valid = read_affinity_file();
 
-    // for(int i = 0; i < affinity.size(); i++) {
-    //     cout << to_string(affinity[i]) << endl;
-    // }
+    if (!is_affinity_valid) {
+        cout << "Affinity file is not valid" << endl;
+        return;
+    }
+   
     // Initialize threads
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
-        auto start_index = i * bucket_size;
-        threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), start_index, bucket_size);
+        threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
         
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -62,7 +62,7 @@ void ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_
         int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
         
         if (VERBOSE == 2)
-            cout << "Thread #" << i << " @ " << affinity[i] <<  "start_index: " << start_index << endl;
+            cout << "Thread #" << i << " @ " << affinity[i] <<  "- start_index: " << i * bucket_size << endl;
         if (rc != 0) {
             cerr << "Error calling pthread_setaffinity_np: " << rc << endl;
         }

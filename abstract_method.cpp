@@ -2,6 +2,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <thread>
+
+//may return 0 when not able to detect
 
 using namespace std;
 
@@ -11,6 +14,8 @@ AbstractMethod::AbstractMethod(ProgramArgs &args) {
     this->DATA_SIZE = args.data_size;
     this->VERBOSE = args.verbose;
     this->args = &args;
+    this->processor_count = std::thread::hardware_concurrency();
+
 }
 
 int AbstractMethod::get_num_partitions() const {
@@ -33,7 +38,9 @@ bool AbstractMethod::read_affinity_file() {
         cout << "No affinity file specified" << endl;
         return false;
     }
-
+    if(args->verbose == 2){
+        cout << processor_count << " processors detected" << endl;
+    }
     // Read line from file
     ifstream file;
     file.open(args->affinity_file);
@@ -45,7 +52,27 @@ bool AbstractMethod::read_affinity_file() {
     stringstream ss(line);
     string word;
     while(ss >> word) {
-        affinity.push_back(stoi(word));
+        
+        try {
+            int core = stoi(word);
+            if(core >= processor_count) {
+                throw out_of_range("Core number out of range");
+            }
+            affinity.push_back(core);
+            cout << "Read core: " << core << endl; // Debugging output
+        } catch (const invalid_argument& e) {
+            cout << "Invalid core number: " << word << endl;
+            return false;
+        } catch (const out_of_range& e) {
+            cout << "Core number out of range: " << word << endl;
+            return false;
+        }
+
+    }
+
+    if(affinity.size() < NUM_THREADS) {
+        cout << "Affinity file:" << to_string(affinity.size()) << " != threads: " << to_string(args->num_threads) << endl;
+        return false;
     }
 
     return true;

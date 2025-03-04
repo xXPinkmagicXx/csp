@@ -15,6 +15,7 @@ public:
     int NUM_THREADS;
     int DATA_SIZE;
     int VERBOSE;
+    int processor_count;
     vector<int> affinity;
     ProgramArgs* args;
 
