@@ -68,10 +68,16 @@ bool AbstractMethod::read_affinity_file() {
         }
 
     }
+    
+    // Print That we are populating affinity vector
+    if(affinity.size() < NUM_THREADS && args->verbose == 2) {
+        cout << "Affinity size:" << to_string(affinity.size()) << " < threads: " << to_string(args->num_threads) << endl;
+        cout << "Populating affinity vector:" << endl;
+    }
 
-    if(affinity.size() < NUM_THREADS) {
-        cout << "Affinity file:" << to_string(affinity.size()) << " != threads: " << to_string(args->num_threads) << endl;
-        return false;
+    int current_index = 0;
+    while (affinity.size() < NUM_THREADS) {
+        affinity.push_back(affinity[current_index % NUM_THREADS]);
     }
 
     return true;

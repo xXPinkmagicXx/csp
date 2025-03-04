@@ -9,10 +9,10 @@ if [ $1 = "build" ]; then
 # For testing
 elif [ $1 = "test" ]; then
     HASH_BITS=2
-    NUM_THREADS=16
+    NUM_THREADS=4
     METHOD="1"
     VERBOSE="2"
-    AFFINITY_METHOD="linear"
+    AFFINITY_METHOD="one"
     echo "Running: out.o $HASH_BITS $NUM_THREADS $VERBOSE $METHOD $AFFINITY_METHOD"
     ./out.o $HASH_BITS $NUM_THREADS $VERBOSE $METHOD $AFFINITY_METHOD
 
