@@ -49,6 +49,43 @@ bool keys() {
     return generated_numbers.size() == pow(2.0, 24.0);
 }
 
+void generate_affinity_linear(int n_threads) {
+    ofstream file;
+    cout << "Generating " << n_threads << " random integers" << endl;
+    cout << "Opening file... " << endl;
+    file.open("affinity.txt", ios::trunc);
+    for(int i = 0; i < n_threads; i++){
+        file << i << endl;
+    }
+    file.close();
+    cout << "Closed file... " << endl;
+}
+
+void generate_affinity_even(int n_threads) {
+    ofstream file;
+    cout << "Generating " << n_threads << " random integers" << endl;
+    cout << "Opening file... " << endl;
+    file.open("affinity.txt", ios::trunc);
+    for(int i = 0; i < n_threads; i++){
+        file << i << endl;
+    }
+    file.close();
+    cout << "Closed file... " << endl;
+}
+
+void generate_affinity_even(int n_threads) {
+    ofstream file;
+    cout << "Generating " << n_threads << " random integers" << endl;
+    cout << "Opening file... " << endl;
+    file.open("affinity.txt", ios::trunc);
+    for(int i = 0; i < n_threads; i++){
+        file << i * 2 << endl;
+    }
+    file.close();
+    cout << "Closed file... " << endl;
+}
+
+
 int main(int argc, char *argv[]) {
 
     if(argc <= 1) {
@@ -83,4 +120,6 @@ int main(int argc, char *argv[]) {
     cout << "Generation complete..." << endl;
     return 0;
 }
+
+
 
