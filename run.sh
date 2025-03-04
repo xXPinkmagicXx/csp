@@ -49,7 +49,7 @@ do
     for j in {1..18} # hashbits
     do
         echo "Running independent method with $NUM_THREAD threads and $j hashbits" 
-        ./$OUTPUT $j $NUM_THREAD 1 0
+        ./$OUTPUT $j $NUM_THREAD 1 0 $1 
     done
 done
 
@@ -60,6 +60,6 @@ do
     for j in {1..18} # hashbits
     do
         echo "Running concurrent method with $NUM_THREAD threads and $j hashbits" 
-        ./$OUTPUT $j $NUM_THREAD 1 1
+        ./$OUTPUT $j $NUM_THREAD 1 1 $1
     done
 done
