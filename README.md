@@ -94,6 +94,8 @@ Arguments
     0 = no printing  
     1 = show progress  
     2 = additional information  
+4. method {0,1}
+5. path_to_affinity_file
 
 ```bash
 ./out.o <hashbits> <number_of_threads> <verbose> <method> <path_to_affinity_file>

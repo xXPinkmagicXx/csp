@@ -175,26 +175,25 @@ int main(int argc, char *argv[]) {
         cout << "Data is not valid..." << endl;
         return 1;
     }
+    
     args.data_size = data.size();
-    // Print out affinity file
     args.method_name = "concurrent";
     args.output_file_name = "concurrent_" + to_string(args.num_threads);
     
-    ConcurrentMethod concurrent_method(args);
-    do_method(concurrent_method, cref(data));
-
     // Do the correct type of partitioning
-    // if (method_type == 0) {
-    //     IndependentMethod independent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
-    //     do_method(independent_method, data, data_size, "independent_" + to_string(NUM_THREADS));
-    // } else if (method_type == 1) {
-    //     ConcurrentMethod concurrent_method(HASH_BITS, NUM_THREADS, data_size, VERBOSE);
-    //     do_method(concurrent_method, data, data_size, "concurrent_" + to_string(NUM_THREADS));
-    // } else {
-    //     cout << "Unknown method type" << endl;
-    //     cout << "Closing..." << endl;
-    //     return 1;
-    // }
+    if (args.method_type == 0) {
+        IndependentMethod method(args);
+        do_method(method, cref(data));
+
+    } else if (args.method_type == 1) {
+        ConcurrentMethod method(args);
+        do_method(method, cref(data));
+
+    } else {
+        cout << "Unknown method type" << endl;
+        cout << "Closing..." << endl;
+        return 1;
+    }
 
     return 0;
 }
