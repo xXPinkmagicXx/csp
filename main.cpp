@@ -118,7 +118,7 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
         if (argc > 5) {
             // Optional affinity file
             // cout << "fifth arg: " << argv[5] << endl;
-            args.affinity_file = argv[5];
+            args.affinity_name = argv[5];
         }
     } catch (const invalid_argument& e) {
         cout << "Invalid argument: " << e.what() << endl;
@@ -127,6 +127,10 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
         cout << "Argument out of range: " << e.what() << endl;
         return false;
     }
+    
+    args.method_name = args.method_type == 0  ? "concurrent" : "independent";
+    args.affinity_file = "affinity/" + args.affinity_name + ".txt";
+    args.output_file_name =  args.method_name + "_" + args.affinity_name + "_" + to_string(args.num_threads);
 
     return true;
 }
@@ -177,8 +181,7 @@ int main(int argc, char *argv[]) {
     }
     
     args.data_size = data.size();
-    args.method_name = "concurrent";
-    args.output_file_name = "concurrent_" + to_string(args.num_threads);
+    
     
     // Do the correct type of partitioning
     if (args.method_type == 0) {

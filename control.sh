@@ -12,13 +12,13 @@ elif [ $1 = "test" ]; then
     NUM_THREADS=16
     METHOD="1"
     VERBOSE="2"
-    AFFINITY_FILE="affinity/linear.txt"
-    echo "Running: out.o $HASH_BITS $NUM_THREADS $VERBOSE $METHOD $AFFINITY_FILE"
-    ./out.o $HASH_BITS $NUM_THREADS $VERBOSE $METHOD $AFFINITY_FILE
+    AFFINITY_METHOD="linear"
+    echo "Running: out.o $HASH_BITS $NUM_THREADS $VERBOSE $METHOD $AFFINITY_METHOD"
+    ./out.o $HASH_BITS $NUM_THREADS $VERBOSE $METHOD $AFFINITY_METHOD
 
 elif [ $1 = "run" ]; then
     echo "Running: run.sh"
-    ./run.sh     
+    ./run.sh $2     
 else
     echo "Invalid argument: $1"
 fi

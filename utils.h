@@ -12,7 +12,8 @@ struct ProgramArgs {
     int method_type = 0;
     int data_size = 0;
     string method_name = "";
-    string affinity_file = "";
+    string affinity_name = "";
+    string affinity_file = "";      
     string output_file_name = "";
 };
 

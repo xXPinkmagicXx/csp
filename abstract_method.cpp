@@ -59,7 +59,6 @@ bool AbstractMethod::read_affinity_file() {
                 throw out_of_range("Core number out of range");
             }
             affinity.push_back(core);
-            cout << "Read core: " << core << endl; // Debugging output
         } catch (const invalid_argument& e) {
             cout << "Invalid core number: " << word << endl;
             return false;
