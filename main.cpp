@@ -97,10 +97,10 @@ int main(int argc, char *argv[]) {
         }
         // Get and validate the verbose argument
         int verbose_arg = 0;
-        if (argc == 4 && verbose_arg >= 0 && verbose_arg < 3) {
+        if (argc >= 4 && verbose_arg >= 0 && verbose_arg < 3) {
             verbose_arg = stoi(argv[3]); 
         }
-        if (argc == 5) {
+        if (argc >= 5) {
             method_type = stoi(argv[4]);
         }
         VERBOSE = verbose_arg;

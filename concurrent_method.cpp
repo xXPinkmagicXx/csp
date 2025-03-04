@@ -45,8 +45,8 @@ void ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_
     if (VERBOSE == 2)
         cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
 
+    vector<int> argv = {0, 1, 2, 3};
 
-    vector<int> argv = {0, 1, 2, 3};    
     // Initialize threads
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
