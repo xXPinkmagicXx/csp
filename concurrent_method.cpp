@@ -17,8 +17,7 @@ void ConcurrentMethod::init_buffers() {
 }
 
 void ConcurrentMethod::work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size) {
-    if (VERBOSE == 2)
-        cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
+    
 
     // Identify the partition by hash function
     for (int i = start_index; i < start_index + bucket_size; i++) {
@@ -46,23 +45,27 @@ void ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_
         cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
 
     vector<int> argv = {0, 1, 2, 3};
+    auto has_affinity = read_affinity_file();
 
+    // for(int i = 0; i < affinity.size(); i++) {
+    //     cout << to_string(affinity[i]) << endl;
+    // }
     // Initialize threads
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
-        threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
-    
+        auto start_index = i * bucket_size;
+        threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), start_index, bucket_size);
         
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
-        // CPU_SET(atoi(argv[2 + i]), &cpuset);
-        CPU_SET(argv[i], &cpuset);
-        int rc = pthread_setaffinity_np(threads[i].native_handle(),
-                                        sizeof(cpu_set_t), &cpuset);
-
+        CPU_SET(affinity[i], &cpuset);
+        int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
+        
+        if (VERBOSE == 2)
+            cout << "Thread #" << i << " @ " << affinity[i] <<  "start_index: " << start_index << endl;
         if (rc != 0) {
             cerr << "Error calling pthread_setaffinity_np: " << rc << endl;
-            }
+        }
     }
 
     // Join threads
