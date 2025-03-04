@@ -6,7 +6,7 @@
 #include <vector>
 #include <thread>
 #include <cstdint>
-
+#include "utils.h"
 using namespace std;
 
 class AbstractMethod {
@@ -15,8 +15,9 @@ public:
     int NUM_THREADS;
     int DATA_SIZE;
     int VERBOSE;
-    
-    AbstractMethod(int hash_bits, int num_threads, int data_size, int verbose);
+    ProgramArgs* args;
+
+    AbstractMethod(ProgramArgs &args);
     virtual ~AbstractMethod() = default;
 
     int get_num_partitions() const;

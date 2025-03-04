@@ -2,11 +2,12 @@
 
 using namespace std;
 
-AbstractMethod::AbstractMethod(int hash_bits, int num_threads, int data_size, int verbose) {
-    this->HASH_BITS = hash_bits;
-    this->NUM_THREADS = num_threads;
-    this->DATA_SIZE = data_size;
-    this->VERBOSE = verbose;
+AbstractMethod::AbstractMethod(ProgramArgs &args) {
+    this->HASH_BITS = args.hash_bits;
+    this->NUM_THREADS = args.num_threads;
+    this->DATA_SIZE = args.data_size;
+    this->VERBOSE = args.verbose;
+    this->args = &args;
 }
 
 int AbstractMethod::get_num_partitions() const {
