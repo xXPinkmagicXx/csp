@@ -51,7 +51,7 @@ do
     for j in {1..18} # hashbits
     do
         echo "Running independent method with $NUM_THREAD threads and $j hashbits" 
-        ./$OUTPUT $j $NUM_THREAD 1 0 $1 >> $INDEPENDENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv
+        ./$OUTPUT $j $NUM_THREAD 0 0 $1 >> $INDEPENDENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv
     done
 done
 
@@ -62,7 +62,7 @@ do
     for j in {1..18} # hashbits
     do
         echo "Running concurrent method with $NUM_THREAD threads and $j hashbits" 
-        ./$OUTPUT $j $NUM_THREAD 1 1 $1 >> $CONCURRENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv
+        ./$OUTPUT $j $NUM_THREAD 0 1 $1 >> $CONCURRENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv
     done
 done
 
