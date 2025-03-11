@@ -1,5 +1,6 @@
 #include "concurrent_method.h"
 #include <cmath>
+#include <pthread.h>
 
 using namespace std;
 
@@ -16,8 +17,7 @@ void ConcurrentMethod::init_buffers() {
 }
 
 void ConcurrentMethod::work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size) {
-    if (VERBOSE == 2)
-        cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
+    
 
     // Identify the partition by hash function
     for (int i = start_index; i < start_index + bucket_size; i++) {
@@ -32,6 +32,49 @@ void ConcurrentMethod::work(int thread_index, const vector<tuple<uint64_t, uint6
     if (VERBOSE == 2)
         cout << "Thread #" << thread_index << " completed... " << endl;
 }
+
+void ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
+
+    // Initialize mutexes for each partition
+    init_mutexes();
+    init_buffers();
+
+    // Create buffers for each partition
+    auto bucket_size = data.size() / NUM_THREADS;
+    if (VERBOSE == 2)
+        cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+
+    auto is_affinity_valid = read_affinity_file();
+
+    if (!is_affinity_valid) {
+        cout << "Affinity file is not valid" << endl;
+        return;
+    }
+   
+    // Initialize threads
+    vector<thread> threads(NUM_THREADS);
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
+        
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(affinity[i], &cpuset);
+        int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
+        
+        if (VERBOSE == 2)
+            cout << "Thread #" << i << " @ " << affinity[i] <<  "- start_index: " << i * bucket_size << endl;
+        if (rc != 0) {
+            cerr << "Error calling pthread_setaffinity_np: " << rc << endl;
+        }
+    }
+
+    // Join threads
+    for (auto& t : threads) {
+        t.join();
+    }
+
+}
+
 
 void ConcurrentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data) {
     // Initialize mutexes for each partition

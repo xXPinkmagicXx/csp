@@ -11,6 +11,12 @@ g++ -o $OUTPUT $SOURCE $FLAGS
 # Define result directory
 RESULTS_DIR="results"
 
+# Does file exist?
+if [ ! -f "affinity/$1.txt" ]; then
+    echo "Error: affinity/"$1.txt" not found"
+    exit 1
+fi
+
 # Create result directory if it doesn't exist
 if [ ! -d $RESULTS_DIR ]; then
    mkdir $RESULTS_DIR
@@ -24,8 +30,8 @@ CONCURRENT_RESULTS_PREFIX="./$RESULTS_DIR/concurrent"
 for i in {0..5}
 do
     NUM_THREAD=$((2**$i))
-    IND_RESULTS_FILE="$INDEPENDENT_RESULTS_PREFIX"_"$NUM_THREAD.csv"
-    CON_RESULTS_FILE="$CONCURRENT_RESULTS_PREFIX"_"$NUM_THREAD.csv"
+    IND_RESULTS_FILE="$INDEPENDENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv"
+    CON_RESULTS_FILE="$CONCURRENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv"
     # Remove old independent results file
     if [ -f $IND_RESULTS_FILE ]; then
         rm $IND_RESULTS_FILE
@@ -49,7 +55,7 @@ do
     for j in {1..18} # hashbits
     do
         echo "Running independent method with $NUM_THREAD threads and $j hashbits" 
-        ./$OUTPUT $j $NUM_THREAD 1 0
+        ./$OUTPUT $j $NUM_THREAD 1 0 $1 
     done
 done
 
@@ -60,6 +66,6 @@ do
     for j in {1..18} # hashbits
     do
         echo "Running concurrent method with $NUM_THREAD threads and $j hashbits" 
-        ./$OUTPUT $j $NUM_THREAD 1 1
+        ./$OUTPUT $j $NUM_THREAD 1 1 $1
     done
 done

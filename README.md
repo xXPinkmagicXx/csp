@@ -1,5 +1,55 @@
 # Computer System Performance (CSP)
 
+This is the code for Project 1 of Computer System Performance   
+This code has implemented a concurrent and a independent data partion algorithm
+
+# Run code 
+
+## Run via Control (recommended)
+
+Compile, test and run via `control.sh`  
+You can pass in:
+- run: runs `./run.sh`, here you have to specify a second arfg
+- test: run `out.o` with default args
+- build: compiles the code
+
+```bash
+./control.sh <function>
+```
+
+```bash
+./control.sh build
+Compiled: out.o
+```
+
+```bash
+./control.sh run linear
+```
+
+
+## Run All Experiments (recommended)
+Run the bash script and regenerate the results in results folder  
+`run.sh` takes the file name of an affinity file 
+- even
+- odd
+- numa_0
+- numa_1
+- linear
+
+```bash
+./run.sh <affinity_file_name>
+```
+the affinity_file_name is processed in the run.sh
+
+```bash
+./run.sh linear
+```
+
+This is going to look in `affinity/` folder and find `linear.txt`, and will pass `affinity/linear.txt` to out.o
+
+
+
+# Main
 ## How to compile the code
 
 Compile the main script (remember to use `-pthread`)
@@ -12,57 +62,7 @@ Compile the generate script
 g++ -o generate.o generate.cpp
 ```
 
-## Results
-
-The results are saved in the folder `results/`  
-Files are formatted: `<methods>_<#threads>.csv`  
-Each file contains
-- hash_bits
-- mil_tup_per_sec
-
-## Python Environment (Python=3.12.9)
-
-Create env with conda or python
-
-### Install nessesary requirments to run python script
-```bash
-pip install -r requirements.txt
-```
-
-### Updating requirements.txt
-
-The easiest way is to use `pipreqs`. Install by `pip install pipreqs`   
-```
-pipreqs . --force
-```
-Note: 
-- `--force` overrides the current `requirements.txt` file.
-- `.` (the dot in the code) is the path to the project. So "." is the current folder
-
-
-
-
-
-## How to run the code
-
-### Run All Experiment (recommended)
-Run the bash script and regenerate the `results.csv` file
-```bash
-./run.sh
-```
-
-### Run graph.py
-Run `graph.py` to generate the two graphs `concurrent_fig.png` and `independent_fig.png`
-
-Note: it is assumed that `./run.sh` has been run before generating the graphs
-
-```bash
-python graph.py
-```
-
-This will run the block inside `if __name__ == '__main__'`
-
-### Run main
+## Run main
 Arguments
 1. hashbits=4
 2. number of threads=4
@@ -70,16 +70,19 @@ Arguments
     0 = no printing  
     1 = show progress  
     2 = additional information  
+4. method {0,1}
+5. path_to_affinity_file
 
 ```bash
-./out.o <hashbits> <number_of_threads> <verbose>
+./out.o <hashbits> <number_of_threads> <verbose> <method> <affinity_file_name>
 ```
 This will run out.o with 4 hashbits and 8 threads without printing
 ```bash
-./out.o 4 8 false
+./out.o 4 8 0 1 affinity/numa_0.txt
 ```
 
-### Run generate
+
+## Run generate
 1. Number of key value pairs to generate
 ```bash
  ./generate.o <number>
@@ -89,7 +92,9 @@ Note that you can only generate data with size of the power of 2
  ./generate.o 8
 ```
 
-### Running experiment on remote server using TMUX
+# TMUX
+
+## Running experiment on remote server using TMUX
 
 Create a new tmux session with
 ```bash
@@ -123,3 +128,54 @@ To copy the results to your Desktop
 ```bash
 scp -r group12@dionysos.itu.dk:/home/group12/csp/results ~/Desktop/
 ```
+
+# Python Environment (Python=3.12.9)
+
+Create env with conda or python
+
+## Install nessesary requirments to run python script
+```bash
+pip install -r requirements.txt
+```
+
+## Updating requirements.txt
+
+The easiest way is to use `pipreqs`. Install by `pip install pipreqs`   
+```
+pipreqs . --force
+```
+Note: 
+- `--force` overrides the current `requirements.txt` file.
+- `.` (the dot in the code) is the path to the project. So "." is the current folder
+
+## Run graph.py
+Run `graph.py` to generate the two graphs `concurrent_fig.png` and `independent_fig.png`
+
+Note: it is assumed that `./run.sh` has been run before generating the graphs
+
+```bash
+python graph.py
+```
+
+This will run the block inside `if __name__ == '__main__'`
+
+
+# Other
+
+## Affinity
+- All in one numa node
+- All different cores (no hyper threading)
+- No config
+
+## Perf
+- Context switches
+- Cache misses
+
+
+## Results
+
+The results are saved in the folder `results/`  
+Files are formatted: `<methods>_<#threads>.csv`  
+Each file contains
+- hash_bits
+- mil_tup_per_sec
