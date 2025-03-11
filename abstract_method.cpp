@@ -16,7 +16,7 @@ AbstractMethod::AbstractMethod(ProgramArgs &args) {
     this->VERBOSE = args.verbose;
     this->args = &args;
     this->processor_count = std::thread::hardware_concurrency();
-    this->barrier = new Barrier(NUM_THREADS+1); // +1 for main thread
+    this->barrier = new Barrier(NUM_THREADS+1); // +1 for waiting for main thread
 }
 
 int AbstractMethod::get_num_partitions() const {
