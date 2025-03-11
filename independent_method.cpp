@@ -6,10 +6,6 @@ using namespace std;
 void IndependentMethod::work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size) {
     vector<vector<tuple<uint64_t, uint64_t>>> buffer(get_num_partitions());
 
-    if (VERBOSE == 2) {
-        cout << "Thread #" << thread_index << ": start_index= " << start_index << endl;
-    }
-
     // Identify the partition by hash function
     for (int i = start_index; i < start_index + bucket_size; i++) {
         // Hash key to get the partition key
@@ -28,7 +24,43 @@ void IndependentMethod::work(int thread_index, const vector<tuple<uint64_t, uint
 
 void IndependentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
     // Temporary solution to avoid unused parameter warning
-    thread_work(data);
+    
+    buffer_collection.resize(NUM_THREADS);
+    uint64_t bucket_size = data.size() / NUM_THREADS;
+
+    if (VERBOSE == 2)
+        cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+
+    
+    auto is_affinity_valid = read_affinity_file();
+
+    if (!is_affinity_valid) {
+        cout << "Affinity file is not valid" << endl;
+        exit(1);
+    }
+
+    vector<thread> threads(NUM_THREADS);
+    for (int i = 0; i < NUM_THREADS; ++i) {
+        threads[i] = thread(&IndependentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
+
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(affinity[i], &cpuset);
+        int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
+        
+        if (VERBOSE == 2)
+            cout << "Thread #" << i << " @ " << affinity[i] <<  "- start_index: " << i * bucket_size << endl;
+        if (rc != 0) {
+            cerr << "Error calling pthread_setaffinity_np: " << rc << endl;
+        }
+
+    }
+
+    for (thread& t : threads) {
+        t.join();
+    }
+
+
 }
 void IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data) {
     buffer_collection.resize(NUM_THREADS);
