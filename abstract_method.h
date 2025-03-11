@@ -8,7 +8,8 @@
 #include <cstdint>
 #include "utils.h"
 #include <thread> 
-
+#include <atomic>
+#include "barrier.hpp"
 
 using namespace std;
 
@@ -19,6 +20,7 @@ public:
     int DATA_SIZE;
     int VERBOSE;
     int processor_count;
+    Barrier* barrier;
     vector<int> affinity;
     ProgramArgs* args;
 
