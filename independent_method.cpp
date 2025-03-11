@@ -6,6 +6,9 @@ using namespace std;
 void IndependentMethod::work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size) {
     vector<vector<tuple<uint64_t, uint64_t>>> buffer(get_num_partitions());
 
+    if (VERBOSE == 2) {
+        cerr << "Thread #" << thread_index << ": start_index= " << start_index << endl;
+    }
     // Identify the partition by hash function
     for (int i = start_index; i < start_index + bucket_size; i++) {
         // Hash key to get the partition key
@@ -18,7 +21,7 @@ void IndependentMethod::work(int thread_index, const vector<tuple<uint64_t, uint
     buffer_collection[thread_index] = move(buffer);
 
     if (VERBOSE == 2) {
-        cout << "Thread #" << thread_index << " completed... " << endl;
+        cerr << "Thread #" << thread_index << " completed... " << endl;
     }
 }
 
@@ -29,13 +32,13 @@ void IndependentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64
     uint64_t bucket_size = data.size() / NUM_THREADS;
 
     if (VERBOSE == 2)
-        cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+        cerr << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
 
     
     auto is_affinity_valid = read_affinity_file();
 
     if (!is_affinity_valid) {
-        cout << "Affinity file is not valid" << endl;
+        cerr << "Affinity file is not valid" << endl;
         exit(1);
     }
 
@@ -49,7 +52,7 @@ void IndependentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64
         int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
         
         if (VERBOSE == 2)
-            cout << "Thread #" << i << " @ " << affinity[i] <<  "- start_index: " << i * bucket_size << endl;
+            cerr << "Thread #" << i << " @ " << affinity[i] <<  "- start_index: " << i * bucket_size << endl;
         if (rc != 0) {
             cerr << "Error calling pthread_setaffinity_np: " << rc << endl;
         }
@@ -67,7 +70,7 @@ void IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& dat
     uint64_t bucket_size = data.size() / NUM_THREADS;
 
     if (VERBOSE == 2) {
-        cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+        cerr << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
     }
 
     vector<thread> threads(NUM_THREADS);
@@ -84,7 +87,7 @@ void IndependentMethod::print_buffers_everything() {
     for (int i = 0; i < buffer_collection.size(); i++) {
         for (int j = 0; j < buffer_collection[i].size(); j++) {
             for (int k = 0; k < buffer_collection[i][j].size(); k++) {
-                cout << "Thread: " << i << " Partition: " << j
+                cerr << "Thread: " << i << " Partition: " << j
                     << " Key: " << get<0>(buffer_collection[i][j][k])
                     << " Value: " << get<1>(buffer_collection[i][j][k]) << endl;
             }
@@ -96,7 +99,7 @@ void IndependentMethod::print_buffers_partition_entries() {
     for (int i = 0; i < buffer_collection.size(); i++) {
         for (int j = 0; j < buffer_collection[i].size(); j++) {
             int partition_size = buffer_collection[i][j].size();
-            cout << "Thread: " << i << " Partition: " << j << "# entries: " << partition_size << endl;
+            cerr << "Thread: " << i << " Partition: " << j << "# entries: " << partition_size << endl;
         }
     }
 }
@@ -116,5 +119,7 @@ void IndependentMethod::print_buffers_partition_statistics() {
     }
 
     std_dev = sqrt(std_dev / num_partitions);
-    cout << "Expected Partition Size: " << mean << " ±" << std_dev << endl;
+    if (VERBOSE == 1) {
+        cerr << "Expected Partition Size: " << mean << " ±" << std_dev << endl;
+    }
 }
