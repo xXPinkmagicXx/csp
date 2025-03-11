@@ -32,6 +32,7 @@ void AbstractMethod::print_hash_values(const vector<tuple<uint64_t, uint64_t>>& 
     }
 }
 
+
 bool AbstractMethod::read_affinity_file() {
 
     if(args->affinity_file.empty() || args->affinity_file == "none"){

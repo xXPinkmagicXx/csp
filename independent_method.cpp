@@ -26,10 +26,13 @@ void IndependentMethod::work(int thread_index, const vector<tuple<uint64_t, uint
     }
 }
 
-void IndependentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
+int IndependentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
     // Temporary solution to avoid unused parameter warning
     thread_work(data);
+
+    return 0;
 }
+
 void IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data) {
     buffer_collection.resize(NUM_THREADS);
     uint64_t bucket_size = data.size() / NUM_THREADS;

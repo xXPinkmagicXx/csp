@@ -1,6 +1,7 @@
 #include "concurrent_method.h"
 #include <cmath>
 #include <pthread.h>
+#include <future>
 
 using namespace std;
 
@@ -17,7 +18,6 @@ void ConcurrentMethod::init_buffers() {
 }
 
 void ConcurrentMethod::work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size) {
-    
 
     // Identify the partition by hash function
     for (int i = start_index; i < start_index + bucket_size; i++) {
@@ -33,7 +33,7 @@ void ConcurrentMethod::work(int thread_index, const vector<tuple<uint64_t, uint6
         cout << "Thread #" << thread_index << " completed... " << endl;
 }
 
-void ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
+int ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
 
     // Initialize mutexes for each partition
     init_mutexes();
@@ -48,7 +48,7 @@ void ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_
 
     if (!is_affinity_valid) {
         cout << "Affinity file is not valid" << endl;
-        return;
+        exit(1);
     }
    
     // Initialize threads
@@ -68,11 +68,20 @@ void ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_
         }
     }
 
-    // Join threads
+    // Start times here
+    auto start_time = chrono::high_resolution_clock::now();
+
+    // Join and start threads
     for (auto& t : threads) {
         t.join();
     }
+    
+    // End timer and calculate duration
+    auto end_time = chrono::high_resolution_clock::now();
+    int duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
 
+    // Return time
+    return duration;
 }
 
 
