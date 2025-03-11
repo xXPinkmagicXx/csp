@@ -1,3 +1,4 @@
+import sys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,11 +7,14 @@ import os
 import psutil
 
 NUM_THREADS = [1, 2, 4, 8, 16, 32]
+RESULTS_FOLDER = f'./results/{sys.argv[1]}'
+AFFINITY = sys.argv[2]
 
 def read_data(method: str) -> list[pd.DataFrame]:
     all_results = []
+    base_path = f"{RESULTS_FOLDER}/{method}_{AFFINITY}" if AFFINITY != None else f"{RESULTS_FOLDER}/{method}"
     for i in NUM_THREADS:
-        results = pd.read_csv(f"results/{method}_{i}.csv")
+        results = pd.read_csv(f"{base_path}_{i}.csv")
         all_results.append(results)
     return all_results
 
@@ -31,8 +35,8 @@ def generate_independent_graphs()-> None:
 def generate_graph(method: str, all_results: list[pd.DataFrame]) -> None:
     plt.close() # Close the previous figure to avoid overlapping
     plt.rcParams["axes.prop_cycle"] = plt.cycler(
-    color=plt.rcParams['axes.prop_cycle'].by_key()['color'][:6],
-    marker=['o', 's', 'D', '^', 'v', '*'])
+        color=plt.rcParams['axes.prop_cycle'].by_key()['color'][:6],
+        marker=['o', 's', 'D', '^', 'v', '*'])
     for i in range(len(NUM_THREADS)):
         xs = all_results[i]["hash_bits"]
         ys = all_results[i]["mil_tup_per_sec"]
@@ -51,7 +55,7 @@ def generate_graph(method: str, all_results: list[pd.DataFrame]) -> None:
     plt.xlabel("Hash bits")
     plt.xticks(range(0, 20, 2))
     plt.ylabel("Million tuples per second")
-    plt.savefig(f"results/{method.lower()}_fig.png")
+    plt.savefig(f"{RESULTS_FOLDER}/{method.lower()}_fig.png")
 
 def main():
     # When running the script, it will generate the graphs
