@@ -9,7 +9,7 @@ if [ $1 = "build" ]; then
 # For testing
 elif [ $1 = "test" ]; then
     HASH_BITS=2
-    NUM_THREADS=4
+    NUM_THREADS=2
     METHOD="1"
     VERBOSE="2"
     AFFINITY_METHOD="one"

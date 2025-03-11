@@ -20,7 +20,12 @@ void ConcurrentMethod::init_buffers() {
 void ConcurrentMethod::work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size) {
 
     // Identify the partition by hash function
+    cout << "Thread #" << thread_index << " Started... " << endl;
     for (int i = start_index; i < start_index + bucket_size; i++) {
+        
+        if(i % 5000 == 0)
+            cout << "Thread #" << thread_index << " working..." << i << endl;
+
         // Hash key to get the partition key
         auto key = get<0>(data[i]);
         auto partition_key = hash_function(key);
@@ -54,7 +59,9 @@ int ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t
     // Initialize threads
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
+        cout << "before init thread #" << i << endl;
         threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
+        cout << "after init thread #" << i << endl;
         
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -69,16 +76,23 @@ int ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t
     }
 
     // Start times here
+    cout << "----Before Timer start----" << endl;
     auto start_time = chrono::high_resolution_clock::now();
+    cout << "----After Timer start----" << endl;
 
     // Join and start threads
-    for (auto& t : threads) {
-        t.join();
+    // For i threads
+    for(int i = 0; i < NUM_THREADS; i++) {
+        cout << "before Joining thread #" << i << endl;
+        threads[i].join();
+        cout << "after Joining thread #" << i << endl;
     }
     
+    cout << "----Before Timer end----" << endl;
     // End timer and calculate duration
     auto end_time = chrono::high_resolution_clock::now();
     int duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    cout << "----After Timer end----" << endl;
 
     // Return time
     return duration;

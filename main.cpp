@@ -191,7 +191,6 @@ int main(int argc, char *argv[]) {
     } else if (args.method_type == 1) {
         ConcurrentMethod method(args);
         do_method(method, cref(data));
-        do_method_old(method, cref(data));
 
     } else {
         cout << "Unknown method type" << endl;
