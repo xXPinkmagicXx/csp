@@ -7,6 +7,10 @@
 #include <thread>
 #include <cstdint>
 #include "utils.h"
+#include <thread> 
+#include <atomic>
+#include "barrier.hpp"
+
 using namespace std;
 
 class AbstractMethod {
@@ -16,6 +20,7 @@ public:
     int DATA_SIZE;
     int VERBOSE;
     int processor_count;
+    Barrier* barrier;
     vector<int> affinity;
     ProgramArgs* args;
 
@@ -29,7 +34,7 @@ public:
     
     virtual void work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size) = 0;
     virtual void thread_work(const vector<tuple<uint64_t, uint64_t>>& data) = 0;
-    virtual void thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data) = 0;
+    virtual int thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data) = 0;
     virtual void print_buffers_everything() = 0;
     virtual void print_buffers_partition_entries() = 0;
     virtual void print_buffers_partition_statistics() = 0;

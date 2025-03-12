@@ -55,13 +55,13 @@ void write_results_to_file(string path, float million_tuples_per_second) {
 }
 
 void do_method(AbstractMethod& method, const vector<tuple<uint64_t, uint64_t>>& data) {
-    auto start_time = chrono::high_resolution_clock::now();
 
-    method.thread_work_affinity(cref(data));
-
-    auto end_time = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    int duration = method.thread_work_affinity(cref(data));
     
+    if(args.verbose == 2){
+        cout << "NEW Time taken: " << duration << " milliseconds" << endl;
+    }
+
     // print summary
     float tuples_pr_ms = args.data_size / duration;
     float tuples_per_second = tuples_pr_ms * 1000;

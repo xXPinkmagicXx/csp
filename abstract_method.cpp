@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <thread>
+#include "barrier.hpp"
 
 //may return 0 when not able to detect
 
@@ -15,7 +16,7 @@ AbstractMethod::AbstractMethod(ProgramArgs &args) {
     this->VERBOSE = args.verbose;
     this->args = &args;
     this->processor_count = std::thread::hardware_concurrency();
-
+    this->barrier = new Barrier(NUM_THREADS+1); // +1 for waiting for main thread
 }
 
 int AbstractMethod::get_num_partitions() const {
@@ -31,6 +32,7 @@ void AbstractMethod::print_hash_values(const vector<tuple<uint64_t, uint64_t>>& 
         cerr << hash_function(get<0>(entry)) << " " << get<1>(entry) << endl;
     }
 }
+
 
 bool AbstractMethod::read_affinity_file() {
 
