@@ -30,7 +30,6 @@ public:
     int get_num_partitions() const;
     int hash_function(uint64_t key) const;
     void print_hash_values(const vector<tuple<uint64_t, uint64_t>>& data) const;
-    
     bool read_affinity_file();
     
     virtual void work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size) = 0;

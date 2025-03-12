@@ -29,7 +29,7 @@ int AbstractMethod::hash_function(uint64_t key) const {
 
 void AbstractMethod::print_hash_values(const vector<tuple<uint64_t, uint64_t>>& data) const {
     for (const tuple<uint64_t, uint64_t>& entry : data) {
-        cout << hash_function(get<0>(entry)) << " " << get<1>(entry) << endl;
+        cerr << hash_function(get<0>(entry)) << " " << get<1>(entry) << endl;
     }
 }
 
@@ -37,11 +37,11 @@ void AbstractMethod::print_hash_values(const vector<tuple<uint64_t, uint64_t>>& 
 bool AbstractMethod::read_affinity_file() {
 
     if(args->affinity_file.empty() || args->affinity_file == "none"){
-        cout << "No affinity file specified" << endl;
+        cerr << "No affinity file specified" << endl;
         return false;
     }
     if(args->verbose == 2){
-        cout << processor_count << " processors detected" << endl;
+        cerr << processor_count << " processors detected" << endl;
     }
     // Read line from file
     ifstream file;
@@ -62,10 +62,10 @@ bool AbstractMethod::read_affinity_file() {
             }
             affinity.push_back(core);
         } catch (const invalid_argument& e) {
-            cout << "Invalid core number: " << word << endl;
+            cerr << "Invalid core number: " << word << endl;
             return false;
         } catch (const out_of_range& e) {
-            cout << "Core number out of range: " << word << endl;
+            cerr << "Core number out of range: " << word << endl;
             return false;
         }
 
@@ -73,8 +73,8 @@ bool AbstractMethod::read_affinity_file() {
     
     // Print That we are populating affinity vector
     if(affinity.size() < NUM_THREADS && args->verbose == 2) {
-        cout << "Affinity size:" << to_string(affinity.size()) << " < threads: " << to_string(args->num_threads) << endl;
-        cout << "Populating affinity vector:" << endl;
+        cerr << "Affinity size:" << to_string(affinity.size()) << " < threads: " << to_string(args->num_threads) << endl;
+        cerr << "Populating affinity vector:" << endl;
     }
 
     int current_index = 0;

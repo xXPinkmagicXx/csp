@@ -7,13 +7,14 @@ using namespace std;
 
 void ConcurrentMethod::init_mutexes() {
     if (VERBOSE == 2)
-        cout << "Initializing mutexes" << endl;
+    cerr << "Initializing mutexes" << endl;
     mutexes = new mutex[get_num_partitions()];
 }
 
 void ConcurrentMethod::init_buffers() {
-    if (VERBOSE == 2)
-        cout << "Initializing buffers..." << endl;
+    if (VERBOSE == 2) {
+        cerr << "Initializing buffers..." << endl;
+    }
     concurrent_buffers = vector<vector<tuple<uint64_t, uint64_t>>>(get_num_partitions());
 }
 
@@ -37,7 +38,7 @@ void ConcurrentMethod::work(int thread_index, const vector<tuple<uint64_t, uint6
 
     barrier->wait();
     if (VERBOSE == 2)
-        cout << "Thread #" << thread_index << " completed... " << endl;
+        cerr << "Thread #" << thread_index << " completed... " << endl;
 }
 
 int ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
@@ -48,13 +49,14 @@ int ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t
 
     // Create buffers for each partition
     auto bucket_size = data.size() / NUM_THREADS;
-    if (VERBOSE == 2)
-        cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+    if (VERBOSE == 2) {
+        cerr << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+    }
 
     auto is_affinity_valid = read_affinity_file();
 
     if (!is_affinity_valid) {
-        cout << "Affinity file is not valid" << endl;
+        cerr << "Affinity file is not valid" << endl;
         exit(1);
     }
    
@@ -71,8 +73,9 @@ int ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t
         CPU_SET(affinity[i], &cpuset);
         int rc = pthread_setaffinity_np(threads[i].native_handle(), sizeof(cpu_set_t), &cpuset);
         
-        if (VERBOSE == 2)
-            cout << "Thread #" << i << " @ " << affinity[i] <<  "- start_index: " << i * bucket_size << endl;
+        if (VERBOSE == 2) {
+            cerr << "Thread #" << i << " @ " << affinity[i] <<  "- start_index: " << i * bucket_size << endl;
+        }
         if (rc != 0) {
             cerr << "Error calling pthread_setaffinity_np: " << rc << endl;
         }
@@ -114,8 +117,9 @@ void ConcurrentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data
 
     // Create buffers for each partition
     auto bucket_size = data.size() / NUM_THREADS;
-    if (VERBOSE == 2)
-        cout << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+    if (VERBOSE == 2) {
+        cerr << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+    }
 
     // Initialize threads
     vector<thread> threads(NUM_THREADS);
@@ -133,16 +137,16 @@ void ConcurrentMethod::add_tuple_to_buffer(int partition_key, tuple<uint64_t, ui
     // Add data to buffer
     // Lock the mutex
     mutexes[partition_key].lock();
-    // cout << "Locked partition: " << partition_key << endl;
+    // cerr << "Locked partition: " << partition_key << endl;
     concurrent_buffers[partition_key].push_back(tuple_to_add);
     mutexes[partition_key].unlock();
-    // cout << "Unlocked partition: " << partition_key << endl;
+    // cerr << "Unlocked partition: " << partition_key << endl;
 }
 
 void ConcurrentMethod::print_buffers_everything() {
     for (int i = 0; i < concurrent_buffers.size(); i++) {
         for (int j = 0; j < concurrent_buffers[i].size(); j++) {
-            cout << "Partition: " << i << " Key: " << get<0>(concurrent_buffers[i][j])
+            cerr << "Partition: " << i << " Key: " << get<0>(concurrent_buffers[i][j])
                 << " Value: " << get<1>(concurrent_buffers[i][j]) << endl;
         }
     }
@@ -152,7 +156,7 @@ void ConcurrentMethod::print_buffers_partition_entries() {
     for (int i = 0; i < concurrent_buffers.size(); i++) {
         auto partition_size = concurrent_buffers[i].size();
         // counter_arr[i] = partition_size;
-        cout << "Partition: " << i << "# entries: " << partition_size << endl;
+        cerr << "Partition: " << i << "# entries: " << partition_size << endl;
     }
 }
 
@@ -171,5 +175,7 @@ void ConcurrentMethod::print_buffers_partition_statistics() {
     }
 
     std_dev = sqrt(std_dev / num_partitions);
-    cout << "Expected Partition Size: " << mean << " ±" << std_dev << endl;
+    if (VERBOSE == 1) {
+        cerr << "Expected Partition Size: " << mean << " ±" << std_dev << endl;
+    }
 }
