@@ -22,11 +22,10 @@ void ConcurrentMethod::work(int thread_index, const vector<tuple<uint64_t, uint6
 
     // Identify the partition by hash function
     barrier->wait();
-    cout << "Thread #" << thread_index << " Started... " << endl;
+    if (VERBOSE == 2) {
+        cerr << "Thread #" << thread_index << " Started... " << endl;
+    }
     for (int i = start_index; i < start_index + bucket_size; i++) {
-        
-        if(i % 5000 == 0)
-            cout << "Thread #" << thread_index << " working..." << i << endl;
 
         // Hash key to get the partition key
         auto key = get<0>(data[i]);
@@ -64,9 +63,9 @@ int ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
         
-        cout << "before init thread #" << i << endl;
+        //cerr << "before init thread #" << i << endl;
         threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
-        cout << "after init thread #" << i << endl;
+        //cerr << "after init thread #" << i << endl;
         
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -86,51 +85,80 @@ int ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t
     // Join and start threads
     // For i threads
     for(int i = 0; i < NUM_THREADS; i++) {
-        cout << "before Joining thread #" << i << endl;
+        //cerr << "before Joining thread #" << i << endl;
         threads[i].detach();
-        cout << "after Joining thread #" << i << endl;
+        //cerr << "after Joining thread #" << i << endl;
     }
 
     barrier->wait();
     // Start times here
-    cout << "----Before Timer start----" << endl;
+    //cerr << "----Before Timer start----" << endl;
     auto start_time = chrono::high_resolution_clock::now();
-    cout << "----After Timer start----" << endl;
+    //cerr << "----After Timer start----" << endl;
     
     
     barrier->wait();
-    cout << "----Before Timer end----" << endl;
+    //cerr << "----Before Timer end----" << endl;
     // End timer and calculate duration
     auto end_time = chrono::high_resolution_clock::now();
     int duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
-    cout << "----After Timer end----" << endl;
+    //cerr << "----After Timer end----" << endl;
 
     // Return time
     return duration;
 }
 
 
-void ConcurrentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data) {
-    // Initialize mutexes for each partition
-    init_mutexes();
-    init_buffers();
-
-    // Create buffers for each partition
-    auto bucket_size = data.size() / NUM_THREADS;
-    if (VERBOSE == 2) {
-        cerr << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
-    }
-
-    // Initialize threads
-    vector<thread> threads(NUM_THREADS);
-    for (int i = 0; i < NUM_THREADS; ++i) {
-        threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
-    }
-
-    // Join threads
-    for (auto& t : threads) {
-        t.join();
-    }
+int ConcurrentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data) {
+       // Initialize mutexes for each partition
+       init_mutexes();
+       init_buffers();
+   
+       // Create buffers for each partition
+       auto bucket_size = data.size() / NUM_THREADS;
+       if (VERBOSE == 2) {
+           cerr << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
+       }
+      
+       // Initialize threads
+       vector<thread> threads(NUM_THREADS);
+       for (int i = 0; i < NUM_THREADS; ++i) {
+           
+           //cerr << "before init thread #" << i << endl;
+           threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
+           //cerr << "after init thread #" << i << endl;
+           
+           if (VERBOSE == 2) {
+               cerr << "Thread #" << i <<  "- start_index: " << i * bucket_size << endl;
+           }
+       }
+   
+       
+   
+       // Join and start threads
+       // For i threads
+       for(int i = 0; i < NUM_THREADS; i++) {
+           //cerr << "before Joining thread #" << i << endl;
+           threads[i].detach();
+           //cerr << "after Joining thread #" << i << endl;
+       }
+   
+       barrier->wait();
+       // Start times here
+       //cerr << "----Before Timer start----" << endl;
+       auto start_time = chrono::high_resolution_clock::now();
+       //cerr << "----After Timer start----" << endl;
+       
+       
+       barrier->wait();
+       //cerr << "----Before Timer end----" << endl;
+       // End timer and calculate duration
+       auto end_time = chrono::high_resolution_clock::now();
+       int duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+       //cerr << "----After Timer end----" << endl;
+   
+       // Return time
+       return duration;
 }
 
 void ConcurrentMethod::add_tuple_to_buffer(int partition_key, tuple<uint64_t, uint64_t> tuple_to_add) {
