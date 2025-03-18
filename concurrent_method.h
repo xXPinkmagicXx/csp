@@ -22,7 +22,7 @@ public:
     void init_mutexes();
     void init_buffers();
     void work(int thread_index, const vector<tuple<uint64_t, uint64_t>>& data, int start_index, int bucket_size);
-    void thread_work(const vector<tuple<uint64_t, uint64_t>>& data);
+    int thread_work(const vector<tuple<uint64_t, uint64_t>>& data);
     int thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data);
     void add_tuple_to_buffer(int partition_key, tuple<uint64_t, uint64_t> tuple_to_add);
     void print_buffers_everything();

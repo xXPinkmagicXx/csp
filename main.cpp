@@ -16,6 +16,7 @@ ProgramArgs args;
 const string input_file = "random_integers.txt";
 const string output_dir = "./results/";
 const string output_file_extension = ".csv";
+bool use_affinity = false;
 
 // Cast one string line to a unsigned 64-bit integer tuplet  
 tuple<uint64_t, uint64_t> cast_to_tuple(string line) {
@@ -56,10 +57,10 @@ void write_results_to_file(string path, float million_tuples_per_second) {
 
 void do_method(AbstractMethod& method, const vector<tuple<uint64_t, uint64_t>>& data) {
 
-    int duration = method.thread_work_affinity(cref(data));
+    int duration = use_affinity ? method.thread_work_affinity(cref(data)) : method.thread_work(cref(data));
     
     if(args.verbose == 2){
-        cout << "NEW Time taken: " << duration << " milliseconds" << endl;
+        cerr << "NEW Time taken: " << duration << " milliseconds" << endl;
     }
 
     // print summary
@@ -117,6 +118,8 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
             // Optional affinity file
             // cerr << "fifth arg: " << argv[5] << endl;
             args.affinity_name = argv[5];
+            args.affinity_file = "affinity/" + args.affinity_name + ".txt";
+            use_affinity = true; 
         }
     } catch (const invalid_argument& e) {
         cerr << "Invalid argument: " << e.what() << endl;
@@ -127,8 +130,11 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
     }
     
     args.method_name = args.method_type == 0  ? "concurrent" : "independent";
-    args.affinity_file = "affinity/" + args.affinity_name + ".txt";
-    args.output_file_name =  args.method_name + "_" + args.affinity_name + "_" + to_string(args.num_threads);
+    if (use_affinity) {
+        args.output_file_name =  args.method_name + "_" + args.affinity_name + "_" + to_string(args.num_threads);
+    } else {
+        args.output_file_name =  args.method_name + "_" + to_string(args.num_threads);
+    }
 
     return true;
 }

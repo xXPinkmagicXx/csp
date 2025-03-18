@@ -8,7 +8,7 @@ import psutil
 
 NUM_THREADS = [1, 2, 4, 8, 16, 32]
 RESULTS_FOLDER = f'./results/{sys.argv[1]}'
-AFFINITY = sys.argv[2]
+AFFINITY = sys.argv[2] if len(sys.argv) == 3 else None
 
 def read_data(method: str) -> list[pd.DataFrame]:
     all_results = []
