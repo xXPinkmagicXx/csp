@@ -27,7 +27,7 @@ void IndependentMethod::work(int thread_index, const vector<tuple<uint64_t, uint
     }
 }
 
-int IndependentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
+double IndependentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_t>>& data){
     buffer_collection.resize(NUM_THREADS);
     uint64_t bucket_size = data.size() / NUM_THREADS;
 
@@ -79,14 +79,14 @@ int IndependentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint64_
     //cerr << "----Before Timer end----" << endl;
     // End timer and calculate duration
     auto end_time = chrono::high_resolution_clock::now();
-    int duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    int64_t duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
     //cerr << "----After Timer end----" << endl;
 
-    // Return time
-    return duration;
+    // Return time (convert from microseconds to milliseconds)
+    return static_cast<double>(duration) / 1000;
 }
 
-int IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data) {
+double IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data) {
     buffer_collection.resize(NUM_THREADS);
     uint64_t bucket_size = data.size() / NUM_THREADS;
 
@@ -122,11 +122,11 @@ int IndependentMethod::thread_work(const vector<tuple<uint64_t, uint64_t>>& data
     //cerr << "----Before Timer end----" << endl;
     // End timer and calculate duration
     auto end_time = chrono::high_resolution_clock::now();
-    int duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    int64_t duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time).count();
     //cerr << "----After Timer end----" << endl;
 
-    // Return time
-    return duration;
+    // Return time (convert from microseconds to milliseconds)
+    return static_cast<double>(duration) / 1000;
 }
 
 void IndependentMethod::print_buffers_everything() {

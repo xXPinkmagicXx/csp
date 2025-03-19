@@ -47,7 +47,7 @@ bool is_power_of_two(uint64_t x) {
     return (x & (x - 1)) == 0;
 }
 
-void write_results_to_file(string path, float million_tuples_per_second) {
+void write_results_to_file(string path, double million_tuples_per_second) {
     //ofstream file;
     //file.open(path, ios::app);
     // Write ulong to file
@@ -57,16 +57,16 @@ void write_results_to_file(string path, float million_tuples_per_second) {
 
 void do_method(AbstractMethod& method, const vector<tuple<uint64_t, uint64_t>>& data) {
 
-    int duration = use_affinity ? method.thread_work_affinity(cref(data)) : method.thread_work(cref(data));
+    double duration = use_affinity ? method.thread_work_affinity(cref(data)) : method.thread_work(cref(data));
     
     if(args.verbose == 2){
         cerr << "NEW Time taken: " << duration << " milliseconds" << endl;
     }
 
     // print summary
-    float tuples_pr_ms = args.data_size / duration;
-    float tuples_per_second = tuples_pr_ms * 1000;
-    float million_tuples_per_second = tuples_per_second / 1000000;
+    double tuples_pr_ms = args.data_size / duration;
+    double tuples_per_second = tuples_pr_ms * 1000;
+    double million_tuples_per_second = tuples_per_second / 1000000;
     write_results_to_file(output_dir + args.output_file_name + output_file_extension, million_tuples_per_second);
     if(args.verbose == 1) {
         method.print_buffers_partition_statistics();
