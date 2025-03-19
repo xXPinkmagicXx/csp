@@ -168,9 +168,14 @@ This will run the block inside `if __name__ == '__main__'`
 - No config
 
 ## Perf
-- Context switches
-- Cache misses
 
+To run with perf:
+```
+perf stat -e cycles,instructions,L1-icache-load-misses,L1-dcache-load-misses,LLC-load-misses,cache-misses,uops_retired.stall_cycles,branch-misses,iTLB-load-misses,dTLB-load-misses -o perf_results.txt ./run.sh
+```
+
+The output will be saved in the file specified (perf_results.txt).  
+In the output, cpu_core refers to P-cores (performance), cpu_atom refers to E-cores (efficiency).
 
 ## Results
 

@@ -1,0 +1,31 @@
+# started on Wed Mar 19 10:09:56 2025
+
+
+ Performance counter stats for './run.sh':
+
+    20.276.688.521      cpu_atom/cycles:u/                                                      (64,80%)
+    56.095.764.085      cpu_core/cycles:u/                                                      (68,14%)
+    38.418.412.988      cpu_atom/instructions:u/         #    1,89  insn per cycle              (64,80%)
+   139.618.219.852      cpu_core/instructions:u/         #    2,49  insn per cycle              (75,14%)
+        21.346.712      cpu_atom/L1-icache-load-misses:u/                                        (64,80%)
+       456.733.155      cpu_core/L1-icache-load-misses:u/                                        (74,64%)
+   <not supported>      cpu_atom/L1-dcache-load-misses:u/                                      
+       211.311.451      cpu_core/L1-dcache-load-misses:u/                                        (74,35%)
+            17.975      cpu_atom/LLC-load-misses:u/                                             (64,80%)
+         6.310.625      cpu_core/LLC-load-misses:u/                                             (48,28%)
+        13.961.356      cpu_atom/cache-misses:u/                                                (64,80%)
+        41.845.486      cpu_core/cache-misses:u/                                                (59,78%)
+    26.815.355.978      cpu_core/uops_retired.stall_cycles:u/                                        (67,08%)
+        22.778.973      cpu_atom/branch-misses:u/                                               (64,80%)
+       159.560.615      cpu_core/branch-misses:u/                                               (74,74%)
+         4.143.629      cpu_atom/iTLB-load-misses:u/                                            (64,80%)
+         6.846.119      cpu_core/iTLB-load-misses:u/                                            (74,28%)
+         2.806.110      cpu_atom/dTLB-load-misses:u/                                            (64,80%)
+         6.755.700      cpu_core/dTLB-load-misses:u/                                            (59,30%)
+
+      11,863683279 seconds time elapsed
+
+      15,023480000 seconds user
+       4,026284000 seconds sys
+
+
