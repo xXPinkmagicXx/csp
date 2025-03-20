@@ -10,9 +10,9 @@ if [ $1 = "build" ]; then
 elif [ $1 = "test" ]; then
     HASH_BITS=2
     NUM_THREADS=4
-    METHOD="1"
+    METHOD="1" # 0=concurrent;1=independent 
     VERBOSE="2"
-    AFFINITY_METHOD="one"
+    AFFINITY_METHOD="no_affinity"
     echo "Running: out.o $HASH_BITS $NUM_THREADS $VERBOSE $METHOD $AFFINITY_METHOD"
     ./out.o $HASH_BITS $NUM_THREADS $VERBOSE $METHOD $AFFINITY_METHOD
 
