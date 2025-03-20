@@ -33,3 +33,7 @@
 *.o
 
 .vscode
+
+results/
+
+perf_results.txt

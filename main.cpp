@@ -16,7 +16,7 @@ ProgramArgs args;
 const string input_file = "random_integers.txt";
 const string output_dir = "./results/";
 const string output_file_extension = ".csv";
-mutex fileMutex;
+bool use_affinity = false;
 
 // Cast one string line to a unsigned 64-bit integer tuplet  
 tuple<uint64_t, uint64_t> cast_to_tuple(string line) {
@@ -47,32 +47,31 @@ bool is_power_of_two(uint64_t x) {
     return (x & (x - 1)) == 0;
 }
 
-void write_results_to_file(string path, float million_tuples_per_second) {
-    ofstream file;
-    file.open(path, ios::app);
+void write_results_to_file(string path, double million_tuples_per_second) {
+    //ofstream file;
+    //file.open(path, ios::app);
     // Write ulong to file
-    file << args.hash_bits << "," << million_tuples_per_second << endl;
-    file.close();
-    fileMutex.unlock();
+    cout << args.hash_bits << "," << million_tuples_per_second << endl;
+    //file.close();
 }
 
 void do_method(AbstractMethod& method, const vector<tuple<uint64_t, uint64_t>>& data) {
-    auto start_time = chrono::high_resolution_clock::now();
 
-    method.thread_work_affinity(cref(data));
-
-    auto end_time = chrono::high_resolution_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    double duration = use_affinity ? method.thread_work_affinity(cref(data)) : method.thread_work(cref(data));
     
+    if(args.verbose == 2){
+        cerr << "NEW Time taken: " << duration << " milliseconds" << endl;
+    }
+
     // print summary
-    float tuples_pr_ms = args.data_size / duration;
-    float tuples_per_second = tuples_pr_ms * 1000;
-    float million_tuples_per_second = tuples_per_second / 1000000;
+    double tuples_pr_ms = args.data_size / duration;
+    double tuples_per_second = tuples_pr_ms * 1000;
+    double million_tuples_per_second = tuples_per_second / 1000000;
     write_results_to_file(output_dir + args.output_file_name + output_file_extension, million_tuples_per_second);
     if(args.verbose == 1) {
         method.print_buffers_partition_statistics();
-        // cout << "Time taken: " << duration << " milliseconds" << endl;
-        cout << "Million Tuples per second: " << million_tuples_per_second << endl; 
+        // cerr << "Time taken: " << duration << " milliseconds" << endl;
+        cerr << "Million Tuples per second: " << million_tuples_per_second << endl; 
     }
 }
 
@@ -81,10 +80,10 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
         if (argc > 1) {
             // Get and validate the hash bits argument 
             args.hash_bits = stoi(argv[1]);
-            // cout << "zero arg: " << argv[0] << endl;
-            // cout << "first arg: " << argv[1] << endl;
+            // cerr << "zero arg: " << argv[0] << endl;
+            // cerr << "first arg: " << argv[1] << endl;
             if (args.hash_bits <= 0 || args.hash_bits > 18) {
-                cout << "First arg: enter a positive number between 1-18" << endl;
+                cerr << "First arg: enter a positive number between 1-18" << endl;
                 return false;
             }
         }
@@ -92,9 +91,9 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
         if (argc > 2) {
             // Get and validate the # threads argument
             args.num_threads = stoi(argv[2]);
-            // cout << "second arg: " << argv[2] << endl;
+            // cerr << "second arg: " << argv[2] << endl;
             if (args.num_threads <= 0 || args.num_threads > 32) {
-                cout << "Second arg: enter positive number between 1-32" << endl;
+                cerr << "Second arg: enter positive number between 1-32" << endl;
                 return false;
             }
         }
@@ -102,35 +101,40 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
         if (argc > 3) {
             // Get and validate the verbose argument
             args.verbose = stoi(argv[3]);
-            // cout << "third arg: " << argv[3] << endl;
+            // cerr << "third arg: " << argv[3] << endl;
             if (args.verbose < 0 || args.verbose >= 3) {
-                cout << "Third arg: enter a number between 0-2 for verbosity" << endl;
+                cerr << "Third arg: enter a number between 0-2 for verbosity" << endl;
                 return false;
             }
         }
 
         if (argc > 4) {
             // Get and validate the method type argument
-            // cout << "Forth arg: " << argv[4] << endl;
+            // cerr << "Forth arg: " << argv[4] << endl;
             args.method_type = stoi(argv[4]);
         }
 
         if (argc > 5) {
             // Optional affinity file
-            // cout << "fifth arg: " << argv[5] << endl;
+            // cerr << "fifth arg: " << argv[5] << endl;
             args.affinity_name = argv[5];
+            args.affinity_file = "affinity/" + args.affinity_name + ".txt";
+            use_affinity = true; 
         }
     } catch (const invalid_argument& e) {
-        cout << "Invalid argument: " << e.what() << endl;
+        cerr << "Invalid argument: " << e.what() << endl;
         return false;
     } catch (const out_of_range& e) {
-        cout << "Argument out of range: " << e.what() << endl;
+        cerr << "Argument out of range: " << e.what() << endl;
         return false;
     }
     
     args.method_name = args.method_type == 0  ? "concurrent" : "independent";
-    args.affinity_file = "affinity/" + args.affinity_name + ".txt";
-    args.output_file_name =  args.method_name + "_" + args.affinity_name + "_" + to_string(args.num_threads);
+    if (use_affinity) {
+        args.output_file_name =  args.method_name + "_" + args.affinity_name + "_" + to_string(args.num_threads);
+    } else {
+        args.output_file_name =  args.method_name + "_" + to_string(args.num_threads);
+    }
 
     return true;
 }
@@ -138,25 +142,25 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
 bool validate_input(const vector<tuple<uint64_t, uint64_t>>& data){
     uint64_t data_size = data.size();
     if(args.verbose == 2) {
-        cout << "Data size: " << data_size << endl;
+        cerr << "Data size: " << data_size << endl;
     }
     if(data_size == 0) {
-        cout << "No data to process" << endl;
-        cout << "Closing..." << endl;
+        cerr << "No data to process" << endl;
+        cerr << "Closing..." << endl;
         return false;
     } 
     
     if(data_size < args.num_threads) {
-        cout << "Data size is less than the number of threads"  << endl;
-        cout << "Data size:" << data_size << "# threads" << args.num_threads << endl;
-        cout << "Closing..." << endl;
+        cerr << "Data size is less than the number of threads"  << endl;
+        cerr << "Data size:" << data_size << "# threads" << args.num_threads << endl;
+        cerr << "Closing..." << endl;
         return false;
     }
 
     if(!is_power_of_two(data_size)) {
-        cout << "Data size is not a power of 2" << endl;
-        cout << "Use generate.o to generate data" << endl;
-        cout << "Closing..." << endl;
+        cerr << "Data size is not a power of 2" << endl;
+        cerr << "Use generate.o to generate data" << endl;
+        cerr << "Closing..." << endl;
         return false;
     }
 
@@ -166,7 +170,7 @@ bool validate_input(const vector<tuple<uint64_t, uint64_t>>& data){
 int main(int argc, char *argv[]) {
     auto was_successful = read_args(argc, argv, args);
     if(!was_successful) {
-        cout << "Reading args failed..." << endl;
+        cerr << "Reading args failed..." << endl;
         return 1;
     }
     
@@ -176,7 +180,7 @@ int main(int argc, char *argv[]) {
     // Validate input
     auto is_data_valid = validate_input(cref(data));
     if(!is_data_valid) {
-        cout << "Data is not valid..." << endl;
+        cerr << "Data is not valid..." << endl;
         return 1;
     }
     
@@ -193,8 +197,8 @@ int main(int argc, char *argv[]) {
         do_method(method, cref(data));
 
     } else {
-        cout << "Unknown method type" << endl;
-        cout << "Closing..." << endl;
+        cerr << "Unknown method type" << endl;
+        cerr << "Closing..." << endl;
         return 1;
     }
 
