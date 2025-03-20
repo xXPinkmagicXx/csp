@@ -29,12 +29,7 @@ Compiled: out.o
 
 ## Run All Experiments (recommended)
 Run the bash script and regenerate the results in results folder  
-`run.sh` takes the file name of an affinity file 
-- even
-- odd
-- numa_0
-- numa_1
-- linear
+`run.sh` takes the file name of an affinity file see affinity section
 
 ```bash
 ./run.sh <affinity_file_name>
@@ -46,6 +41,26 @@ the affinity_file_name is processed in the run.sh
 ```
 
 This is going to look in `affinity/` folder and find `linear.txt`, and will pass `affinity/linear.txt` to out.o
+
+### Affinity 
+The affinity files are `.txt` files that specify how to set the affinity.  
+
+The files are located in the `affinity/` folder.
+
+The different affinity files
+
+- hyper_threading: 
+    - Note: This assigns to the same cores
+    - Pattern: `0 0 1 1`
+- multi_numa
+    - Note: This split the work up evenly between the numa nodes
+    - Pattorn: `0 8 1 9`
+- even
+- odd
+- numa_0
+- numa_1
+- linear
+- 
 
 
 
@@ -161,11 +176,6 @@ This will run the block inside `if __name__ == '__main__'`
 
 
 # Other
-
-## Affinity
-- All in one numa node
-- All different cores (no hyper threading)
-- No config
 
 ## Perf
 - Context switches

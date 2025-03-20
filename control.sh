@@ -19,6 +19,22 @@ elif [ $1 = "test" ]; then
 elif [ $1 = "run" ]; then
     echo "Running: run.sh"
     ./run.sh $2     
+
+elif [ $1 = "multi" ] || [ $1 = "multi_numa" ]; then
+    echo "Running: run_multi_numa "
+    ./run_multi_numa.sh
+
+elif [ $1 = "hyper"] || [ $1 = "hyper_threading" ]; then
+    echo "Running: run_hyper_threading "
+    ./run_hyper_threading.sh
+
+elif [ $1 = "one" ] || [ $1 = "numa_0" ]; then
+    ./run_numa_0.sh
+
+elif [ $1 = "clean" ]; then
+    # Remove the compiled program
+    rm $OUTPUT
+    echo "Removed: $OUTPUT"
 else
     echo "Invalid argument: $1"
 fi
