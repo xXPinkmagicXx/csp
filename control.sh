@@ -24,7 +24,7 @@ elif [ $1 = "multi" ] || [ $1 = "multi_numa" ]; then
     echo "Running: run_multi_numa "
     ./run_multi_numa.sh
 
-elif [ $1 = "hyper"] || [ $1 = "hyper_threading" ]; then
+elif [ $1 = "hyper" ] || [ $1 = "hyper_threading" ]; then
     echo "Running: run_hyper_threading "
     ./run_hyper_threading.sh
 

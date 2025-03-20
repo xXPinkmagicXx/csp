@@ -54,10 +54,6 @@ double ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint6
 
     bool set_affinity = read_affinity_file();
 
-    if (!set_affinity) {
-        cout << "No affinity config" << endl;
-    }
-   
     // Initialize threads
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
