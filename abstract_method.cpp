@@ -36,8 +36,10 @@ void AbstractMethod::print_hash_values(const vector<tuple<uint64_t, uint64_t>>& 
 
 bool AbstractMethod::read_affinity_file() {
 
-    if(args->affinity_file.empty() || args->affinity_file == "none"){
-        cerr << "No affinity file specified" << endl;
+    if(args->affinity_name == "no_affinity" || args->affinity_file.empty() || args->affinity_file == "none"){
+        if(args->verbose == 2){
+            cerr << "No affinity file specified" << endl;
+        }
         return false;
     }
     if(args->verbose == 2){

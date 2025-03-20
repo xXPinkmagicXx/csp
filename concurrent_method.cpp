@@ -52,20 +52,18 @@ double ConcurrentMethod::thread_work_affinity(const vector<tuple<uint64_t, uint6
         cerr << "Starting with " << NUM_THREADS << " threads and bucket size " << bucket_size << endl;
     }
 
-    auto is_affinity_valid = read_affinity_file();
+    bool set_affinity = read_affinity_file();
 
-    if (!is_affinity_valid) {
-        cerr << "Affinity file is not valid" << endl;
-        exit(1);
-    }
-   
     // Initialize threads
     vector<thread> threads(NUM_THREADS);
     for (int i = 0; i < NUM_THREADS; ++i) {
         
         //cerr << "before init thread #" << i << endl;
         threads[i] = thread(&ConcurrentMethod::work, this, i, cref(data), i * bucket_size, bucket_size);
-        //cerr << "after init thread #" << i << endl;
+        
+        if(!set_affinity) {
+            continue; // skip setting affinity
+        }
         
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
