@@ -1,0 +1,23 @@
+# started on Thu Mar 20 08:04:22 2025
+
+
+ Performance counter stats for './run.sh':
+
+    17882170117294      cycles                                                                  (50.03%)
+    14119239897545      instructions                     #    0.79  insn per cycle              (60.02%)
+       42648401705      L1-icache-load-misses                                                   (60.02%)
+       42327126659      L1-dcache-load-misses                                                   (60.01%)
+        4551147090      LLC-load-misses                                                         (60.01%)
+       17685352629      cache-misses                                                            (60.00%)
+    12324176914584      uops_retired.stall_cycles                                               (40.00%)
+      228899044574      branch-misses                                                           (40.01%)
+         429578100      iTLB-load-misses                                                        (40.02%)
+        1351613090      dTLB-load-misses                                                        (40.02%)
+          24055957      context-switches                                                      
+
+    7144.852146719 seconds time elapsed
+
+    8414.419091000 seconds user
+    1238.596104000 seconds sys
+
+

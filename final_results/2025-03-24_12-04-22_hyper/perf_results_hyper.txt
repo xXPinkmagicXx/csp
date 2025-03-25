@@ -1,0 +1,23 @@
+# started on Mon Mar 24 12:04:16 2025
+
+
+ Performance counter stats for './control.sh hyper':
+
+    17124696353806      cycles                                                                  (50.03%)
+    14140016851220      instructions                     #    0.83  insn per cycle              (60.02%)
+       39597151425      L1-icache-load-misses                                                   (60.01%)
+       39138193020      L1-dcache-load-misses                                                   (60.01%)
+        4462807943      LLC-load-misses                                                         (60.01%)
+       15903221841      cache-misses                                                            (60.00%)
+    11534608515224      uops_retired.stall_cycles                                               (40.00%)
+      229514958487      branch-misses                                                           (40.01%)
+         389765482      iTLB-load-misses                                                        (40.02%)
+        1172758424      dTLB-load-misses                                                        (40.02%)
+          25397847      context-switches                                                      
+
+    7304.497719772 seconds time elapsed
+
+    8048.290028000 seconds user
+     670.938139000 seconds sys
+
+

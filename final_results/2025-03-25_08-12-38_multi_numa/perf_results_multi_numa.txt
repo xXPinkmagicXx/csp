@@ -1,0 +1,23 @@
+# started on Tue Mar 25 08:12:32 2025
+
+
+ Performance counter stats for './control.sh multi_numa':
+
+    16822233457234      cycles                                                                  (50.02%)
+    14014826379656      instructions                     #    0.83  insn per cycle              (60.01%)
+       36052234821      L1-icache-load-misses                                                   (60.01%)
+       38077150342      L1-dcache-load-misses                                                   (60.01%)
+        4183102093      LLC-load-misses                                                         (60.00%)
+       15614845227      cache-misses                                                            (60.00%)
+    11299172445621      uops_retired.stall_cycles                                               (40.00%)
+      229207957650      branch-misses                                                           (40.01%)
+         387915694      iTLB-load-misses                                                        (40.02%)
+        1174707563      dTLB-load-misses                                                        (40.02%)
+          15520534      context-switches                                                      
+
+    7238.188378169 seconds time elapsed
+
+    8260.254348000 seconds user
+     756.241853000 seconds sys
+
+
