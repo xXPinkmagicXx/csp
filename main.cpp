@@ -17,6 +17,7 @@ const string input_file = "random_integers.txt";
 const string output_dir = "./results/";
 const string output_file_extension = ".csv";
 bool use_affinity = false;
+bool loop_hasbits = false;
 
 // Cast one string line to a unsigned 64-bit integer tuplet  
 tuple<uint64_t, uint64_t> cast_to_tuple(string line) {
@@ -82,7 +83,10 @@ bool read_args(int argc, char *argv[], ProgramArgs &args) {
             args.hash_bits = stoi(argv[1]);
             // cerr << "zero arg: " << argv[0] << endl;
             // cerr << "first arg: " << argv[1] << endl;
-            if (args.hash_bits <= 0 || args.hash_bits > 18) {
+            if (args.hash_bits == 0) {
+                loop_hasbits = true;
+            }
+            if (args.hash_bits <= -1 || args.hash_bits > 18) {
                 cerr << "First arg: enter a positive number between 1-18" << endl;
                 return false;
             }
@@ -187,20 +191,39 @@ int main(int argc, char *argv[]) {
     args.data_size = data.size();
     
     
-    // Do the correct type of partitioning
-    if (args.method_type == 0) {
-        IndependentMethod method(args);
-        do_method(method, cref(data));
-
-    } else if (args.method_type == 1) {
-        ConcurrentMethod method(args);
-        do_method(method, cref(data));
-
-    } else {
-        cerr << "Unknown method type" << endl;
-        cerr << "Closing..." << endl;
-        return 1;
+    if (loop_hasbits) {
+        for(int i = 1; i<=18; i++) {
+            args.hash_bits = i;
+            if (args.method_type == 0) {
+                IndependentMethod method(args);
+                do_method(method, cref(data));
+    
+            } else if (args.method_type == 1) {
+                ConcurrentMethod method(args);
+                do_method(method, cref(data));
+    
+            } else {
+                cerr << "Unknown method type" << endl;
+                cerr << "Closing..." << endl;
+                return 1;
+            }
+        }
     }
+    else {
+        // Do the correct type of partitioning
+        if (args.method_type == 0) {
+            IndependentMethod method(args);
+            do_method(method, cref(data));
 
+        } else if (args.method_type == 1) {
+            ConcurrentMethod method(args);
+            do_method(method, cref(data));
+
+        } else {
+            cerr << "Unknown method type" << endl;
+            cerr << "Closing..." << endl;
+            return 1;
+        }
+    }
     return 0;
 }

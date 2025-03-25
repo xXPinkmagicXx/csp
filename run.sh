@@ -62,30 +62,25 @@ done
 for i in {0..5}
 do
     NUM_THREAD=$((2**$i)) # number of threads
-    for j in {1..18} # hashbits
-    do
-        echo "Running independent method with $NUM_THREAD threads and $j hashbits"
-        if [ "$USE_AFFINITY" -eq 1 ]; then
-            ./$OUTPUT $j $NUM_THREAD 0 0 $1 >> $INDEPENDENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv
-        else
-            ./$OUTPUT $j $NUM_THREAD 0 0 $1 >> $INDEPENDENT_RESULTS_PREFIX"_"$NUM_THREAD.csv
-        fi
-    done
+    
+    echo "Running independent method with $NUM_THREAD threads"
+    if [ "$USE_AFFINITY" -eq 1 ]; then
+        perf stat -e cycles,instructions,L1-icache-load-misses,L1-dcache-load-misses,LLC-load-misses,cache-misses,uops_retired.stall_cycles,branch-misses,iTLB-load-misses,dTLB-load-misses,context-switches -o $INDEPENDENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD"_perf.txt" ./$OUTPUT 0 $NUM_THREAD 0 0 $1 >> $INDEPENDENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv
+    else
+        perf stat -e cycles,instructions,L1-icache-load-misses,L1-dcache-load-misses,LLC-load-misses,cache-misses,uops_retired.stall_cycles,branch-misses,iTLB-load-misses,dTLB-load-misses,context-switches -o $INDEPENDENT_RESULTS_PREFIX"_"$NUM_THREAD"_perf.txt" ./$OUTPUT 0 $NUM_THREAD 0 0 $1 >> $INDEPENDENT_RESULTS_PREFIX"_"$NUM_THREAD.csv
+    fi
 done
 
 #Run concurrent method
 for i in {0..5}
 do
     NUM_THREAD=$((2**$i)) # number of threads
-    for j in {1..18} # hashbits
-    do
-        echo "Running concurrent method with $NUM_THREAD threads and $j hashbits"
-        if [ "$USE_AFFINITY" -eq 1 ]; then
-            ./$OUTPUT $j $NUM_THREAD 0 1 $1 >> $CONCURRENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv
-        else
-            ./$OUTPUT $j $NUM_THREAD 0 1 $1 >> $CONCURRENT_RESULTS_PREFIX"_"$NUM_THREAD.csv
-        fi
-    done
+    echo "Running concurrent method with $NUM_THREAD threads"
+    if [ "$USE_AFFINITY" -eq 1 ]; then
+        perf stat -e cycles,instructions,L1-icache-load-misses,L1-dcache-load-misses,LLC-load-misses,cache-misses,uops_retired.stall_cycles,branch-misses,iTLB-load-misses,dTLB-load-misses,context-switches -o $CONCURRENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD"_perf.txt" ./$OUTPUT 0 $NUM_THREAD 0 1 $1 >> $CONCURRENT_RESULTS_PREFIX"_"$1"_"$NUM_THREAD.csv
+    else
+        perf stat -e cycles,instructions,L1-icache-load-misses,L1-dcache-load-misses,LLC-load-misses,cache-misses,uops_retired.stall_cycles,branch-misses,iTLB-load-misses,dTLB-load-misses,context-switches -o $CONCURRENT_RESULTS_PREFIX"_"$NUM_THREAD"_perf.txt" ./$OUTPUT 0 $NUM_THREAD 0 1 $1 >> $CONCURRENT_RESULTS_PREFIX"_"$NUM_THREAD.csv
+    fi
 done
 
 if [ "$USE_AFFINITY" -eq 1 ]; then
