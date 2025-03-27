@@ -1,0 +1,23 @@
+# started on Thu Mar 27 09:54:18 2025
+
+
+ Performance counter stats for './control.sh numa_0':
+
+     4334352925188      cycles                                                                  (25.23%)
+     3375532904372      instructions                     #    0.78  insn per cycle              (28.63%)
+       12439136477      L1-icache-load-misses                                                   (26.80%)
+       22691902533      L1-dcache-load-misses                                                   (25.83%)
+        2733104685      LLC-load-misses                                                         (24.80%)
+       11080563246      cache-misses                                                            (24.80%)
+     2937476917010      uops_retired.stall_cycles                                               (20.18%)
+       18193109127      branch-misses                                                           (20.19%)
+         188887055      iTLB-load-misses                                                        (20.19%)
+         955702359      dTLB-load-misses                                                        (20.18%)
+           5936678      context-switches                                                      
+
+    1356.884314642 seconds time elapsed
+
+    2146.837419000 seconds user
+     319.536825000 seconds sys
+
+

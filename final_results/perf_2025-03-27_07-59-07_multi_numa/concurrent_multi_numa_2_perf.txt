@@ -1,0 +1,23 @@
+# started on Thu Mar 27 08:09:21 2025
+
+
+ Performance counter stats for './out.o 0 2 0 1 multi_numa':
+
+      359796149613      cycles                                                                  (50.02%)
+      294060473922      instructions                     #    0.82  insn per cycle              (60.03%)
+        1106673076      L1-icache-load-misses                                                   (60.03%)
+        2378992979      L1-dcache-load-misses                                                   (60.03%)
+          73327538      LLC-load-misses                                                         (60.03%)
+         423024435      cache-misses                                                            (60.00%)
+      238044411807      uops_retired.stall_cycles                                               (39.98%)
+        1727068985      branch-misses                                                           (39.98%)
+          15520902      iTLB-load-misses                                                        (39.99%)
+          96211815      dTLB-load-misses                                                        (40.01%)
+            257917      context-switches                                                      
+
+     125.048789195 seconds time elapsed
+
+     169.486001000 seconds user
+      21.093216000 seconds sys
+
+

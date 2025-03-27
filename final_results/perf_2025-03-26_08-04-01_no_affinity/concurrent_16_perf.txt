@@ -1,0 +1,23 @@
+# started on Wed Mar 26 08:19:15 2025
+
+
+ Performance counter stats for './out.o 0 16 0 1':
+
+      781377137065      cycles                                                                  (49.99%)
+      363800451757      instructions                     #    0.47  insn per cycle              (59.99%)
+        4623719762      L1-icache-load-misses                                                   (59.99%)
+        4552264785      L1-dcache-load-misses                                                   (60.02%)
+         395312827      LLC-load-misses                                                         (60.01%)
+        1964061666      cache-misses                                                            (60.04%)
+      623914530300      uops_retired.stall_cycles                                               (40.04%)
+        1688493604      branch-misses                                                           (40.02%)
+          77471228      iTLB-load-misses                                                        (40.03%)
+         197399685      dTLB-load-misses                                                        (40.00%)
+           6597118      context-switches                                                      
+
+      95.589798103 seconds time elapsed
+
+     345.117120000 seconds user
+     213.279867000 seconds sys
+
+

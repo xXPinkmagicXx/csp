@@ -1,0 +1,23 @@
+# started on Wed Mar 26 10:09:34 2025
+
+
+ Performance counter stats for './out.o 0 8 0 0 hyper_threading':
+
+      273378349855      cycles                                                                  (50.04%)
+      248626870184      instructions                     #    0.91  insn per cycle              (60.02%)
+         381582237      L1-icache-load-misses                                                   (60.01%)
+        1206843823      L1-dcache-load-misses                                                   (60.02%)
+         138090470      LLC-load-misses                                                         (60.04%)
+         461669151      cache-misses                                                            (60.05%)
+      171436433992      uops_retired.stall_cycles                                               (40.04%)
+        1234620233      branch-misses                                                           (40.05%)
+           2381174      iTLB-load-misses                                                        (40.03%)
+          56922769      dTLB-load-misses                                                        (40.02%)
+             29077      context-switches                                                      
+
+      59.772950980 seconds time elapsed
+
+     131.540676000 seconds user
+       7.144081000 seconds sys
+
+
