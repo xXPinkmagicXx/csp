@@ -1,0 +1,23 @@
+# started on Sat Mar 29 16:14:47 2025
+
+
+ Performance counter stats for './out.o 0 16 0 1 numa_0':
+
+      459610941979      cycles                                                                  (50.06%)
+      308822314825      instructions                     #    0.67  insn per cycle              (60.05%)
+        1600836098      L1-icache-load-misses                                                   (60.04%)
+        2603376544      L1-dcache-load-misses                                                   (60.04%)
+         303726630      LLC-load-misses                                                         (60.05%)
+        1403510186      cache-misses                                                            (60.02%)
+      328032232475      uops_retired.stall_cycles                                               (40.00%)
+        1790583685      branch-misses                                                           (40.03%)
+          32084171      iTLB-load-misses                                                        (40.01%)
+         108095506      dTLB-load-misses                                                        (40.05%)
+           1472895      context-switches                                                      
+
+     131.803525099 seconds time elapsed
+
+     253.322454000 seconds user
+      57.317186000 seconds sys
+
+
