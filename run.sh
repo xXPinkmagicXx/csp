@@ -84,7 +84,7 @@ do
 done
 
 if [ "$USE_AFFINITY" -eq 1 ]; then
-    python3 graph.py $TIMESTAMP $1
+    python3 graph.py $RESULTS_DIR/$TIMESTAMP $1
 else
-    python3 graph.py $TIMESTAMP
+    python3 graph.py $RESULTS_DIR/$TIMESTAMP
 fi
