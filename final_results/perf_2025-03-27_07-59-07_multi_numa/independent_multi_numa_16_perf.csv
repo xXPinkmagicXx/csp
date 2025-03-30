@@ -1,0 +1,12 @@
+,key,count,percentage
+0,cycles,322330789028,50.14
+1,instructions,266482524455,60.1
+2,L1-icache-load-misses,828313954,60.04
+3,L1-dcache-load-misses,1513140517,60.01
+4,LLC-load-misses,225695236,60.0
+5,cache-misses,632267366,60.01
+6,uops_retired.stall_cycles,212780130129,40.04
+7,branch-misses,1339247570,40.13
+8,iTLB-load-misses,7784690,40.15
+9,dTLB-load-misses,81881498,40.12
+10,context-switches,382451,

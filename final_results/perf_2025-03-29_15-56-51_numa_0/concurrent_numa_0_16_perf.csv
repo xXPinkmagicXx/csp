@@ -9,3 +9,4 @@
 7,branch-misses,1790583685,40.03
 8,iTLB-load-misses,32084171,40.01
 9,dTLB-load-misses,108095506,40.05
+10,context-switches,1472895,
